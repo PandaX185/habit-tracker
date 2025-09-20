@@ -22,4 +22,22 @@ model User {
   avatarUrl    String?
   xpPoints     Int     @default(0)
   level        Int     @default(0)
+  habits       Habit[]
+}
+
+model Habit {
+  id                 String    @id @default(uuid())
+  title              String
+  description        String?
+  repetitionInterval Int       @default(1)
+  repetitionUnit     String
+  points             Int
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  difficulty         Int?
+  isActive           Boolean   @default(true)
+  streak             Int       @default(0)
+  lastCompletedAt    DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
