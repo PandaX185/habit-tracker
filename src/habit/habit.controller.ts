@@ -64,4 +64,10 @@ export class HabitController {
     const userId = req.user.userId;
     return this.habitService.remove(id, userId);
   }
+
+  @Post(':id/complete')
+  completeHabit(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const userId = req.user.userId;
+    return this.habitService.completeHabit(id, userId);
+  }
 }

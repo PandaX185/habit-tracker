@@ -2,18 +2,30 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HabitService } from './habit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { getQueueToken } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 describe('HabitService', () => {
   let service: HabitService;
   let prismaService: PrismaService;
+  let mockQueue: jest.Mocked<Queue>;
 
   beforeEach(async () => {
+    const mockQueueProvider = {
+      provide: getQueueToken('habit-reactivation'),
+      useValue: {
+        add: jest.fn(),
+        getJob: jest.fn(),
+      },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [HabitService, PrismaService],
+      providers: [HabitService, PrismaService, mockQueueProvider],
     }).compile();
 
     service = module.get<HabitService>(HabitService);
     prismaService = module.get<PrismaService>(PrismaService);
+    mockQueue = module.get(getQueueToken('habit-reactivation'));
   });
 
   it('should be defined', () => {
@@ -279,6 +291,119 @@ describe('HabitService', () => {
       ).rejects.toThrow();
 
       // Clean up
+      await prismaService.user.delete({ where: { id: user.id } });
+    });
+  });
+
+  describe('completeHabit', () => {
+    it('should complete a habit and schedule reactivation', async () => {
+      const uniqueId = Date.now().toString();
+      // Create a test user
+      const user = await prismaService.user.create({
+        data: {
+          username: `testuser10${uniqueId}`,
+          email: `test10${uniqueId}@example.com`,
+          fullname: 'Test User 10',
+          passwordHash: 'hash',
+          xpPoints: 0,
+        },
+      });
+
+      // Create a habit
+      const habit = await prismaService.habit.create({
+        data: {
+          title: 'Daily Exercise',
+          repetitionInterval: 1,
+          repetitionUnit: 'days',
+          points: 10,
+          user: { connect: { id: user.id } },
+          isActive: true,
+          streak: 0,
+        },
+      });
+
+      mockQueue.add.mockResolvedValue({} as any);
+      mockQueue.getJob.mockResolvedValue(undefined);
+
+      const result = await service.completeHabit(habit.id, user.id);
+
+      expect(result.streak).toBe(1);
+      expect(result.isActive).toBe(false);
+      expect(result.lastCompletedAt).toBeDefined();
+
+      // Check that user XP was updated
+      const updatedUser = await prismaService.user.findUnique({
+        where: { id: user.id },
+      });
+      expect(updatedUser!.xpPoints).toBe(10);
+
+      // Check that job was scheduled
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'reactivate-habit',
+        { habitId: habit.id },
+        expect.objectContaining({
+          delay: expect.any(Number),
+          jobId: `reactivate-${habit.id}`,
+          removeOnComplete: true,
+          removeOnFail: true,
+        }),
+      );
+
+      // Clean up
+      await prismaService.habit.delete({ where: { id: habit.id } });
+      await prismaService.user.delete({ where: { id: user.id } });
+    });
+
+    it('should throw error if habit not found', async () => {
+      const uniqueId = Date.now().toString();
+      // Create a test user
+      const user = await prismaService.user.create({
+        data: {
+          username: `testuser11${uniqueId}`,
+          email: `test11${uniqueId}@example.com`,
+          fullname: 'Test User 11',
+          passwordHash: 'hash',
+        },
+      });
+
+      await expect(
+        service.completeHabit('non-existent-id', user.id),
+      ).rejects.toThrow('Habit not found');
+
+      // Clean up
+      await prismaService.user.delete({ where: { id: user.id } });
+    });
+
+    it('should throw error if habit is not active', async () => {
+      const uniqueId = Date.now().toString();
+      // Create a test user
+      const user = await prismaService.user.create({
+        data: {
+          username: `testuser12${uniqueId}`,
+          email: `test12${uniqueId}@example.com`,
+          fullname: 'Test User 12',
+          passwordHash: 'hash',
+        },
+      });
+
+      // Create an inactive habit
+      const habit = await prismaService.habit.create({
+        data: {
+          title: 'Inactive Habit',
+          repetitionInterval: 1,
+          repetitionUnit: 'days',
+          points: 10,
+          user: { connect: { id: user.id } },
+          isActive: false,
+        },
+      });
+
+      await expect(service.completeHabit(habit.id, user.id)).rejects.toThrow(
+        'Habit is not active',
+      );
+
+      // Clean up
+      await prismaService.habit.delete({ where: { id: habit.id } });
       await prismaService.user.delete({ where: { id: user.id } });
     });
   });
