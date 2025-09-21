@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 
 describe('HabitController', () => {
   let controller: HabitController;
-  let service: jest.Mocked<HabitService>;
+  let service: any;
 
   const mockHabit = {
     id: 'habit-id',
@@ -110,7 +110,11 @@ describe('HabitController', () => {
 
       service.update.mockResolvedValue(mockHabit);
 
-      const result = await controller.update(id, updateHabitDto, mockReq as any);
+      const result = await controller.update(
+        id,
+        updateHabitDto,
+        mockReq as any,
+      );
 
       expect(service.update).toHaveBeenCalledWith(id, updateHabitDto, userId);
       expect(result).toEqual(mockHabit);

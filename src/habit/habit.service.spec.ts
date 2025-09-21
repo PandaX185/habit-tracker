@@ -7,34 +7,6 @@ describe('HabitService', () => {
   let service: HabitService;
   let prismaService: PrismaService;
 
-  const mockUser = {
-    id: 'user-id',
-    username: 'testuser',
-    email: 'test@example.com',
-    fullname: 'Test User',
-    passwordHash: 'hash',
-    avatarUrl: null,
-    xpPoints: 0,
-    level: 0,
-  };
-
-  const mockHabit = {
-    id: 'habit-id',
-    title: 'Test Habit',
-    description: 'Test Description',
-    repetitionInterval: 1,
-    repetitionUnit: 'days',
-    points: 10,
-    userId: 'user-id',
-    category: 'Health',
-    difficulty: 2,
-    isActive: true,
-    streak: 0,
-    lastCompletedAt: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [HabitService, PrismaService],
@@ -243,7 +215,9 @@ describe('HabitService', () => {
 
       const updateHabitDto: Prisma.HabitUpdateInput = { title: 'Updated' };
 
-      await expect(service.update('non-existent-id', updateHabitDto, user.id)).rejects.toThrow();
+      await expect(
+        service.update('non-existent-id', updateHabitDto, user.id),
+      ).rejects.toThrow();
 
       // Clean up
       await prismaService.user.delete({ where: { id: user.id } });
@@ -279,7 +253,9 @@ describe('HabitService', () => {
       expect(result.id).toBe(habit.id);
 
       // Verify deleted
-      const check = await prismaService.habit.findUnique({ where: { id: habit.id } });
+      const check = await prismaService.habit.findUnique({
+        where: { id: habit.id },
+      });
       expect(check).toBeNull();
 
       // Clean up user
@@ -298,7 +274,9 @@ describe('HabitService', () => {
         },
       });
 
-      await expect(service.remove('non-existent-id', user.id)).rejects.toThrow();
+      await expect(
+        service.remove('non-existent-id', user.id),
+      ).rejects.toThrow();
 
       // Clean up
       await prismaService.user.delete({ where: { id: user.id } });
