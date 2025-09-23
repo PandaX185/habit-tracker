@@ -65,15 +65,15 @@ describe('AuthController', () => {
   });
 
   describe('getProfile', () => {
-    it('should return user profile data', async () => {
+    it('should return user profile data', () => {
       const req = { user: mockUser };
 
-      const result = await controller.getProfile(req);
+      const result = controller.getProfile(req);
 
       expect(result).toEqual(mockUser);
     });
 
-    it('should return user profile with optional avatarUrl', async () => {
+    it('should return user profile with optional avatarUrl', () => {
       const userWithoutAvatar = {
         userId: 'user-456',
         email: 'noavatar@example.com',
@@ -82,7 +82,7 @@ describe('AuthController', () => {
       };
       const req = { user: userWithoutAvatar };
 
-      const result = await controller.getProfile(req);
+      const result = controller.getProfile(req);
 
       expect(result).toEqual(userWithoutAvatar);
       expect(result.avatarUrl).toBeUndefined();
@@ -92,7 +92,8 @@ describe('AuthController', () => {
   describe('uploadFile (avatar)', () => {
     it('should upload avatar and update user profile', async () => {
       const req = { user: mockUser };
-      const expectedUrl = 'https://filebase.com/bucket/avatars/123456789-test-avatar.jpg';
+      const expectedUrl =
+        'https://filebase.com/bucket/avatars/123456789-test-avatar.jpg';
 
       filebaseService.uploadFile.mockResolvedValue(expectedUrl);
       authService.updateAvatar.mockResolvedValue({
@@ -114,14 +115,19 @@ describe('AuthController', () => {
         mockFile.buffer,
         mockFile.mimetype,
       );
-      expect(authService.updateAvatar).toHaveBeenCalledWith(mockUser.userId, expectedUrl);
+      expect(authService.updateAvatar).toHaveBeenCalledWith(
+        mockUser.userId,
+        expectedUrl,
+      );
       expect(result).toEqual({ url: expectedUrl });
     });
 
     it('should throw error when no file is uploaded', async () => {
       const req = { user: mockUser };
 
-      await expect(controller.uploadFile(req, undefined as any)).rejects.toThrow('No file uploaded');
+      await expect(
+        controller.uploadFile(req, undefined as any),
+      ).rejects.toThrow('No file uploaded');
       expect(filebaseService.uploadFile).not.toHaveBeenCalled();
       expect(authService.updateAvatar).not.toHaveBeenCalled();
     });
@@ -133,7 +139,8 @@ describe('AuthController', () => {
         originalname: 'avatar.png',
         mimetype: 'image/png',
       };
-      const expectedUrl = 'https://filebase.com/bucket/avatars/123456789-avatar.png';
+      const expectedUrl =
+        'https://filebase.com/bucket/avatars/123456789-avatar.png';
 
       filebaseService.uploadFile.mockResolvedValue(expectedUrl);
       authService.updateAvatar.mockResolvedValue({
@@ -164,34 +171,39 @@ describe('AuthController', () => {
 
       filebaseService.uploadFile.mockRejectedValue(error);
 
-      await expect(controller.uploadFile(req, mockFile)).rejects.toThrow('File size exceeds 5MB');
+      await expect(controller.uploadFile(req, mockFile)).rejects.toThrow(
+        'File size exceeds 5MB',
+      );
       expect(authService.updateAvatar).not.toHaveBeenCalled();
     });
 
     it('should propagate auth service errors', async () => {
       const req = { user: mockUser };
-      const expectedUrl = 'https://filebase.com/bucket/avatars/123456789-test-avatar.jpg';
+      const expectedUrl =
+        'https://filebase.com/bucket/avatars/123456789-test-avatar.jpg';
 
       filebaseService.uploadFile.mockResolvedValue(expectedUrl);
       authService.updateAvatar.mockRejectedValue(new Error('User not found'));
 
-      await expect(controller.uploadFile(req, mockFile)).rejects.toThrow('User not found');
+      await expect(controller.uploadFile(req, mockFile)).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
   describe('googleAuth', () => {
-    it('should initiate Google OAuth (guard handles the logic)', async () => {
-      const result = await controller.googleAuth();
+    it('should initiate Google OAuth (guard handles the logic)', () => {
+      const result = controller.googleAuth();
       expect(result).toBeUndefined();
     });
   });
 
   describe('googleAuthRedirect', () => {
-    it('should return the authenticated user response', async () => {
+    it('should return the authenticated user response', () => {
       const mockResponse = { accessToken: 'jwt-token-123' };
       const req = { user: mockResponse };
 
-      const result = await controller.googleAuthRedirect(req);
+      const result = controller.googleAuthRedirect(req);
 
       expect(result).toEqual(mockResponse);
     });

@@ -9,7 +9,7 @@ export class FilebaseService {
 
   constructor() {
     this.s3 = new S3Client({
-      region: 'us-east-1', 
+      region: 'us-east-1',
       endpoint: process.env.S3_ENDPOINT!,
       credentials: {
         accessKeyId: process.env.FILEBASE_ACCESS_KEY!,
@@ -39,7 +39,7 @@ export class FilebaseService {
     return `${process.env.S3_ENDPOINT!}/${this.bucket}/${key}`;
   }
 
-  async getFileUrl(key: string) {
+  getFileUrl(key: string): string {
     return `${process.env.S3_ENDPOINT!}/${this.bucket}/${key}`;
   }
 }

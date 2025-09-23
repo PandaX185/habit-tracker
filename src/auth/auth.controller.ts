@@ -42,7 +42,10 @@ interface GoogleAuthRequest {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly filebaseService: FilebaseService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly filebaseService: FilebaseService,
+  ) {}
 
   @Post('register')
   @UsePipes(new ValidationPipe())
@@ -60,7 +63,10 @@ export class AuthController {
   @Post('avatar')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@Req() req: AuthenticatedRequest, @UploadedFile() file: MulterFile): Promise<{ url: string }> {
+  async uploadFile(
+    @Req() req: AuthenticatedRequest,
+    @UploadedFile() file?: MulterFile,
+  ): Promise<{ url: string }> {
     if (!file) {
       throw new Error('No file uploaded');
     }
@@ -78,7 +84,7 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  async getProfile(@Req() req: AuthenticatedRequest): Promise<AuthenticatedUser> {
+  getProfile(@Req() req: AuthenticatedRequest): AuthenticatedUser {
     return req.user;
   }
 

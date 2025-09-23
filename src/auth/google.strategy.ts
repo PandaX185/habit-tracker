@@ -48,7 +48,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         !photos ||
         photos.length === 0
       ) {
-        done(new Error('Incomplete Google profile'), null);
+        done(new Error('Incomplete Google profile'), undefined);
         return;
       }
 
@@ -63,7 +63,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       const result = await this.authService.validateGoogleUser(user);
       done(null, result);
     } catch (error) {
-      done(error, null);
+      done(error as Error, undefined);
     }
   }
 }
