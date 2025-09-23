@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { GoogleStrategy } from './google.strategy';
+import { FilebaseModule } from '../filebase/filebase.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { GoogleStrategy } from './google.strategy';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
+    FilebaseModule,
   ],
   providers: [AuthService, PrismaService, JwtStrategy, GoogleStrategy],
   controllers: [AuthController],
