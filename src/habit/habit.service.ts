@@ -111,13 +111,27 @@ export class HabitService {
         },
       });
 
-      // Update user XP
+      // Update user XP and get user object
       await prisma.user.update({
         where: { id: userId },
         data: {
           xpPoints: {
             increment: habit.points,
           },
+        },
+      });
+      
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const newLevel = Math.floor(user.xpPoints / 100) + 1;
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          level: newLevel,
         },
       });
 
