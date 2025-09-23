@@ -46,6 +46,12 @@ export class AuthService {
       throw new UnauthorizedException('User does not exist');
     }
 
+    if (!user.passwordHash) {
+      throw new UnauthorizedException(
+        'This account uses Google OAuth. Please login with Google.',
+      );
+    }
+
     const isPasswordValid = compareSync(req.password, user.passwordHash);
 
     if (!isPasswordValid) {
@@ -54,5 +60,52 @@ export class AuthService {
 
     const accessToken = AuthUtils.generateAccessToken(user);
     return { accessToken };
+  }
+
+  async validateGoogleUser(googleUser: {
+    email: string;
+    fullname: string;
+    avatarUrl: string;
+    googleId: string;
+    username: string;
+  }): Promise<RegisterResponse> {
+    return await this.prisma.$transaction(async (prisma) => {
+      // Check if user exists with this Google ID
+      let user = await prisma.user.findUnique({
+        where: { googleId: googleUser.googleId },
+      });
+
+      if (!user) {
+        // Check if user exists with this email
+        const existingUser = await prisma.user.findUnique({
+          where: { email: googleUser.email },
+        });
+
+        if (existingUser) {
+          // Link Google account to existing user
+          user = await prisma.user.update({
+            where: { email: googleUser.email },
+            data: {
+              googleId: googleUser.googleId,
+              avatarUrl: googleUser.avatarUrl || existingUser.avatarUrl,
+            },
+          });
+        } else {
+          // Create new user
+          user = await prisma.user.create({
+            data: {
+              username: googleUser.username,
+              email: googleUser.email,
+              fullname: googleUser.fullname,
+              googleId: googleUser.googleId,
+              avatarUrl: googleUser.avatarUrl,
+            },
+          });
+        }
+      }
+
+      const accessToken = AuthUtils.generateAccessToken(user);
+      return { accessToken };
+    });
   }
 }

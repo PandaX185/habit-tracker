@@ -7,12 +7,20 @@ import {
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
+  Req,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthGuard } from '@nestjs/passport';
+
+interface AuthenticatedRequest {
+  user: RegisterResponse;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -29,5 +37,17 @@ export class AuthController {
   @HttpCode(200)
   async login(@Body() data: LoginRequest): Promise<LoginResponse> {
     return this.authService.login(data);
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {
+    // This route initiates Google OAuth
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req: AuthenticatedRequest): RegisterResponse {
+    return req.user;
   }
 }
