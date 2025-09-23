@@ -192,8 +192,8 @@ describe('AuthController', () => {
   });
 
   describe('googleAuth', () => {
-    it('should initiate Google OAuth (guard handles the logic)', () => {
-      const result = controller.googleAuth();
+    it('should initiate Google OAuth (guard handles the logic)', async () => {
+      const result = await controller.googleAuth();
       expect(result).toBeUndefined();
     });
   });
