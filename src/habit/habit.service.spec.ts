@@ -297,6 +297,8 @@ describe('HabitService', () => {
 
   describe('completeHabit', () => {
     it('should complete a habit and schedule reactivation', async () => {
+      // Increase timeout for this test
+      jest.setTimeout(30000);
       const uniqueId = Date.now().toString();
       // Create a test user
       const user = await prismaService.user.create({

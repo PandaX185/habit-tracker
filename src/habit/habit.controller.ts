@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import { Prisma } from '@prisma/client';
@@ -66,8 +67,53 @@ export class HabitController {
   }
 
   @Post(':id/complete')
-  completeHabit(@Param('id') id: string, @Req() req: RequestWithUser) {
+  completeHabit(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+    @Body() body?: { notes?: string },
+  ) {
     const userId = req.user.userId;
-    return this.habitService.completeHabit(id, userId);
+    return this.habitService.completeHabit(id, userId, body?.notes);
+  }
+
+  @Get(':id/completions')
+  getHabitCompletions(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const userId = req.user.userId;
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.habitService.getHabitCompletions(id, userId, start, end);
+  }
+
+  @Get('streaks/total')
+  getUserTotalStreaks(@Req() req: RequestWithUser) {
+    const userId = req.user.userId;
+    return this.habitService.getUserTotalStreaks(userId);
+  }
+
+  @Get('stats/completion')
+  getCompletionStats(
+    @Req() req: RequestWithUser,
+    @Query('days') days?: string,
+  ) {
+    const userId = req.user.userId;
+    const daysNum = days ? parseInt(days, 10) : 30;
+    return this.habitService.getCompletionStats(userId, daysNum);
+  }
+
+  @Get('calendar/:year/:month')
+  getCalendarView(
+    @Param('year') year: string,
+    @Param('month') month: string,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.userId;
+    const yearNum = parseInt(year, 10);
+    const monthNum = parseInt(month, 10);
+    return this.habitService.getCalendarView(userId, yearNum, monthNum);
   }
 }

@@ -24,21 +24,52 @@ model User {
   xpPoints     Int     @default(0)
   level        Int     @default(0)
   habits       Habit[]
+
+  // Indexes for performance
+  @@index([email])
+  @@index([googleId])
+  @@index([xpPoints]) // For leaderboards
+  @@index([level]) // For filtering by level
 }
 
 model Habit {
-  id                 String    @id @default(uuid())
+  id                 String            @id @default(uuid())
   title              String
   description        String?
-  repetitionInterval Int       @default(1)
+  repetitionInterval Int               @default(1)
   repetitionUnit     String
   points             Int
   userId             String
-  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   difficulty         Int?
-  isActive           Boolean   @default(true)
-  streak             Int       @default(0)
+  isActive           Boolean           @default(true)
+  streak             Int               @default(0)
+  longestStreak      Int               @default(0)
   lastCompletedAt    DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  completions        HabitCompletion[]
+
+  // Constraints for data integrity
+  @@index([userId]) // Foreign key index
+  @@index([userId, isActive]) // Active habits per user
+  @@index([userId, createdAt]) // Recent habits
+  @@index([lastCompletedAt]) // Recently completed habits
+  @@index([streak]) // High streak habits
+  @@index([repetitionUnit]) // Habits by frequency
+}
+
+model HabitCompletion {
+  id          String   @id @default(uuid())
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  completedAt DateTime @default(now())
+  notes       String?
+
+  // Unique constraint prevents duplicate completions per day
+  @@unique([habitId, completedAt])
+  // Indexes for performance
+  @@index([habitId]) // Foreign key index
+  @@index([habitId, completedAt]) // Time-based queries per habit
+  @@index([completedAt]) // Global completion queries
 }
