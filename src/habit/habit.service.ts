@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateHabitDto, UpdateHabitDto } from './habit.dto';
 
 @Injectable()
 export class HabitService {
@@ -13,7 +14,7 @@ export class HabitService {
     @InjectQueue('habit-reactivation') private readonly habitQueue: Queue,
   ) {}
 
-  create(createHabitDto: Prisma.HabitCreateInput, userId: string) {
+  create(createHabitDto: CreateHabitDto, userId: string) {
     return this.prisma.habit.create({
       data: { ...createHabitDto, user: { connect: { id: userId } } },
     });
@@ -31,7 +32,7 @@ export class HabitService {
     });
   }
 
-  update(id: string, updateHabitDto: Prisma.HabitUpdateInput, userId: string) {
+  update(id: string, updateHabitDto: UpdateHabitDto, userId: string) {
     return this.prisma.habit.update({
       where: { id, userId },
       data: updateHabitDto,
