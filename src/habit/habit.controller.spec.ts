@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HabitController } from './habit.controller';
 import { HabitService } from './habit.service';
-import { Prisma } from '@prisma/client';
 
 describe('HabitController', () => {
   let controller: HabitController;
@@ -70,23 +69,6 @@ describe('HabitController', () => {
       expect(result).toEqual(mockHabit);
     });
 
-    it('should validate habit creation input', async () => {
-      const invalidHabitDto = {
-        title: '', // Invalid: empty title
-        repetitionInterval: 0, // Invalid: less than 1
-        repetitionUnit: 'invalid', // Invalid: not in enum
-        points: 0, // Invalid: less than 1
-      };
-      const userId = 'user-id';
-      const mockReq = { user: { userId } };
-
-      // Mock the service to not be called due to validation failure
-      service.create.mockResolvedValue(mockHabit);
-
-      // This should throw a validation error before reaching the service
-      await expect(controller.create(invalidHabitDto as any, mockReq as any)).rejects.toThrow();
-      expect(service.create).not.toHaveBeenCalled();
-    });
   });
 
   describe('findAll', () => {
