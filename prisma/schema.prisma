@@ -14,22 +14,46 @@ datasource db {
 }
 
 model User {
-  id           String  @id @default(uuid())
-  username     String  @unique
-  email        String  @unique
+  id           String       @id @default(uuid())
+  username     String       @unique
+  email        String       @unique
   fullname     String
   passwordHash String?
-  googleId     String? @unique
+  googleId     String?      @unique
   avatarUrl    String?
-  xpPoints     Int     @default(0)
-  level        Int     @default(0)
+  xpPoints     Int          @default(0)
+  level        Int          @default(0)
   habits       Habit[]
+  friendships  Friendship[] @relation("UserFriendships")
+  friendOf     Friendship[] @relation("FriendOf")
 
   // Indexes for performance
   @@index([email])
   @@index([googleId])
   @@index([xpPoints]) // For leaderboards
   @@index([level]) // For filtering by level
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Friendship {
+  id        String           @id @default(uuid())
+  userId    String
+  friendId  String
+  status    FriendshipStatus @default(PENDING)
+  user      User             @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  friend    User             @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  // Unique constraint to prevent duplicate friendships
+  @@unique([userId, friendId])
+  // Indexes for performance
+  @@index([userId])
+  @@index([friendId])
+  @@index([status]) // For filtering by status
 }
 
 model Habit {
