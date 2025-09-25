@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FriendshipController } from './friendship.controller';
 import { FriendshipService } from './friendship.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 describe('FriendshipController', () => {
   let controller: FriendshipController;
