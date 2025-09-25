@@ -1,4 +1,4 @@
-import { IsEmail, IsJWT, IsNotEmpty, IsStrongPassword, IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsEmail, IsJWT, IsNotEmpty, IsStrongPassword, IsOptional, IsString, IsUrl, Length, Matches } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class LoginRequest {
@@ -7,8 +7,8 @@ export class LoginRequest {
     example: 'user@example.com',
     format: 'email',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsNotEmpty({ message: 'Email is required' })
   email: string;
 
   @ApiProperty({
@@ -16,10 +16,15 @@ export class LoginRequest {
     example: 'StrongPass123!',
     minLength: 8,
   })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Password is required' })
   @IsStrongPassword({
     minLength: 8,
     minNumbers: 1,
+    minLowercase: 1,
+    minUppercase: 1,
+    minSymbols: 1,
+  }, {
+    message: 'Password must be at least 8 characters long and contain at least one number, one lowercase letter, one uppercase letter, and one special character'
   })
   password: string;
 }
@@ -37,10 +42,14 @@ export class RegisterRequest {
   @ApiProperty({
     description: 'Unique username for the user',
     example: 'johndoe',
-    minLength: 1,
+    minLength: 3,
+    maxLength: 30,
+    pattern: '^[a-zA-Z0-9_-]+$',
   })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Username is required' })
   @IsString()
+  @Length(3, 30, { message: 'Username must be between 3 and 30 characters' })
+  @Matches(/^[a-zA-Z0-9_-]+$/, { message: 'Username can only contain letters, numbers, underscores, and hyphens' })
   username: string;
 
   @ApiProperty({
@@ -48,16 +57,19 @@ export class RegisterRequest {
     example: 'user@example.com',
     format: 'email',
   })
-  @IsEmail()
+  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsNotEmpty({ message: 'Email is required' })
   email: string;
 
   @ApiProperty({
     description: 'Full name of the user',
     example: 'John Doe',
     minLength: 1,
+    maxLength: 100,
   })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Full name is required' })
   @IsString()
+  @Length(1, 100, { message: 'Full name must be between 1 and 100 characters' })
   fullname: string;
 
   @ApiProperty({
@@ -65,10 +77,15 @@ export class RegisterRequest {
     example: 'StrongPass123!',
     minLength: 8,
   })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Password is required' })
   @IsStrongPassword({
     minLength: 8,
     minNumbers: 1,
+    minLowercase: 1,
+    minUppercase: 1,
+    minSymbols: 1,
+  }, {
+    message: 'Password must be at least 8 characters long and contain at least one number, one lowercase letter, one uppercase letter, and one special character'
   })
   password: string;
 
@@ -78,7 +95,7 @@ export class RegisterRequest {
     format: 'url',
   })
   @IsOptional()
-  @IsUrl()
+  @IsUrl({}, { message: 'Avatar URL must be a valid URL' })
   avatarUrl?: string;
 }
 

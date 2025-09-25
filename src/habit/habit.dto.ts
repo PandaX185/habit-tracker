@@ -1,31 +1,37 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsInt, IsOptional, IsDateString, IsUUID, Min, Max } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, IsOptional, IsDateString, IsUUID, Min, Max, Length, IsIn, IsEnum } from 'class-validator';
 
 export class CreateHabitDto {
   @ApiProperty({
     description: 'Name of the habit',
     example: 'Drink 8 glasses of water',
     minLength: 1,
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
+  @Length(1, 100, { message: 'Title must be between 1 and 100 characters' })
   title: string;
 
   @ApiPropertyOptional({
     description: 'Detailed description of the habit',
     example: 'Stay hydrated throughout the day by drinking water regularly',
+    maxLength: 500,
   })
   @IsOptional()
   @IsString()
+  @Length(0, 500, { message: 'Description must not exceed 500 characters' })
   description?: string;
 
   @ApiProperty({
     description: 'How often the habit should be performed',
     example: 1,
     minimum: 1,
+    maximum: 365,
   })
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'Repetition interval must be at least 1' })
+  @Max(365, { message: 'Repetition interval must not exceed 365' })
   repetitionInterval: number;
 
   @ApiProperty({
@@ -35,15 +41,18 @@ export class CreateHabitDto {
   })
   @IsString()
   @IsNotEmpty()
+  @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
   repetitionUnit: string;
 
   @ApiProperty({
     description: 'Points awarded for completing this habit',
     example: 10,
     minimum: 1,
+    maximum: 1000,
   })
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'Points must be at least 1' })
+  @Max(1000, { message: 'Points must not exceed 1000' })
   points: number;
 
   @ApiPropertyOptional({
@@ -54,8 +63,8 @@ export class CreateHabitDto {
   })
   @IsOptional()
   @IsInt()
-  @Min(1)
-  @Max(5)
+  @Min(1, { message: 'Difficulty must be at least 1' })
+  @Max(5, { message: 'Difficulty must not exceed 5' })
   difficulty?: number;
 }
 
@@ -63,26 +72,33 @@ export class UpdateHabitDto {
   @ApiPropertyOptional({
     description: 'Name of the habit',
     example: 'Drink 8 glasses of water daily',
+    minLength: 1,
+    maxLength: 100,
   })
   @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @Length(1, 100, { message: 'Title must be between 1 and 100 characters' })
   title?: string;
 
   @ApiPropertyOptional({
     description: 'Detailed description of the habit',
+    maxLength: 500,
   })
   @IsOptional()
   @IsString()
+  @Length(0, 500, { message: 'Description must not exceed 500 characters' })
   description?: string;
 
   @ApiPropertyOptional({
     description: 'How often the habit should be performed',
     minimum: 1,
+    maximum: 365,
   })
   @IsOptional()
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'Repetition interval must be at least 1' })
+  @Max(365, { message: 'Repetition interval must not exceed 365' })
   repetitionInterval?: number;
 
   @ApiPropertyOptional({
@@ -91,15 +107,18 @@ export class UpdateHabitDto {
   })
   @IsOptional()
   @IsString()
+  @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
   repetitionUnit?: string;
 
   @ApiPropertyOptional({
     description: 'Points awarded for completing this habit',
     minimum: 1,
+    maximum: 1000,
   })
   @IsOptional()
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'Points must be at least 1' })
+  @Max(1000, { message: 'Points must not exceed 1000' })
   points?: number;
 
   @ApiPropertyOptional({
@@ -109,8 +128,8 @@ export class UpdateHabitDto {
   })
   @IsOptional()
   @IsInt()
-  @Min(1)
-  @Max(5)
+  @Min(1, { message: 'Difficulty must be at least 1' })
+  @Max(5, { message: 'Difficulty must not exceed 5' })
   difficulty?: number;
 }
 
@@ -202,9 +221,11 @@ export class CompleteHabitDto {
   @ApiPropertyOptional({
     description: 'Optional notes about the completion',
     example: 'Completed early today!',
+    maxLength: 500,
   })
   @IsOptional()
   @IsString()
+  @Length(0, 500, { message: 'Notes must not exceed 500 characters' })
   notes?: string;
 }
 

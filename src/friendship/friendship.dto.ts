@@ -1,8 +1,10 @@
 // DTOs for friendship operations
 import { ApiProperty } from '@nestjs/swagger';
+import { IsUUID } from 'class-validator';
 
 export class SendFriendRequestDto {
   // No additional fields needed - target user ID comes from URL param
+  // But we can add validation for the URL parameter in the controller
 }
 
 export class FriendRequestResponseDto {

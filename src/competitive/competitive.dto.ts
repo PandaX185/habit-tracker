@@ -1,64 +1,94 @@
 // DTOs for competitive habits operations
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsInt, IsOptional, Min, Max, Length, IsIn, IsUUID } from 'class-validator';
 
 export class CreateCompetitiveHabitDto {
   @ApiProperty({
     description: 'Title of the competitive habit',
-    example: 'Morning Run Challenge'
+    example: 'Morning Run Challenge',
+    minLength: 1,
+    maxLength: 100,
   })
+  @IsString()
+  @IsNotEmpty({ message: 'Title is required' })
+  @Length(1, 100, { message: 'Title must be between 1 and 100 characters' })
   title: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Description of the habit',
     example: 'Run for at least 30 minutes every morning',
-    required: false
+    maxLength: 500,
   })
+  @IsOptional()
+  @IsString()
+  @Length(0, 500, { message: 'Description must not exceed 500 characters' })
   description?: string;
 
   @ApiProperty({
     description: 'How often the habit should be repeated',
     example: 1,
-    minimum: 1
+    minimum: 1,
+    maximum: 365,
   })
+  @IsInt()
+  @Min(1, { message: 'Repetition interval must be at least 1' })
+  @Max(365, { message: 'Repetition interval must not exceed 365' })
   repetitionInterval: number;
 
   @ApiProperty({
     description: 'Unit for repetition (days, weeks, months)',
     example: 'days',
-    enum: ['days', 'weeks', 'months']
+    enum: ['days', 'weeks', 'months'],
   })
+  @IsString()
+  @IsNotEmpty({ message: 'Repetition unit is required' })
+  @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
   repetitionUnit: string;
 
   @ApiProperty({
     description: 'XP points awarded for completing this habit',
     example: 20,
-    minimum: 1
+    minimum: 1,
+    maximum: 1000,
   })
+  @IsInt()
+  @Min(1, { message: 'Points must be at least 1' })
+  @Max(1000, { message: 'Points must not exceed 1000' })
   points: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Difficulty level (1-5)',
     example: 3,
     minimum: 1,
     maximum: 5,
-    required: false
   })
+  @IsOptional()
+  @IsInt()
+  @Min(1, { message: 'Difficulty must be at least 1' })
+  @Max(5, { message: 'Difficulty must not exceed 5' })
   difficulty?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Maximum number of participants (null = unlimited)',
     example: 10,
     minimum: 2,
-    required: false
+    maximum: 1000,
   })
+  @IsOptional()
+  @IsInt()
+  @Min(2, { message: 'Maximum participants must be at least 2' })
+  @Max(1000, { message: 'Maximum participants must not exceed 1000' })
   maxParticipants?: number;
 }
 
 export class InviteToHabitDto {
   @ApiProperty({
     description: 'ID of the user to invite',
-    example: '123e4567-e89b-12d3-a456-426614174001'
+    example: '123e4567-e89b-12d3-a456-426614174001',
+    format: 'uuid',
   })
+  @IsUUID('4', { message: 'User ID must be a valid UUID' })
+  @IsNotEmpty({ message: 'User ID is required' })
   userId: string;
 }
 
