@@ -53,12 +53,12 @@ describe('HabitController', () => {
 
   describe('create', () => {
     it('should create a habit', async () => {
-      const createHabitDto: Prisma.HabitCreateInput = {
+      const createHabitDto = {
         title: 'New Habit',
         repetitionInterval: 1,
         repetitionUnit: 'days',
         points: 10,
-      } as any;
+      };
       const userId = 'user-id';
       const mockReq = { user: { userId } };
 
@@ -105,7 +105,7 @@ describe('HabitController', () => {
     it('should update a habit', async () => {
       const id = 'habit-id';
       const userId = 'user-id';
-      const updateHabitDto: Prisma.HabitUpdateInput = { title: 'Updated' };
+      const updateHabitDto = { title: 'Updated' };
       const mockReq = { user: { userId } };
 
       service.update.mockResolvedValue(mockHabit);

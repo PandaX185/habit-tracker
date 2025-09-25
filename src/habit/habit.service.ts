@@ -16,19 +16,49 @@ export class HabitService {
 
   create(createHabitDto: CreateHabitDto, userId: string) {
     return this.prisma.habit.create({
-      data: { ...createHabitDto, user: { connect: { id: userId } } },
+      data: { ...createHabitDto, user: { connect: { id: userId } }, isCompetitive: false },
     });
   }
 
   findAll(userId: string) {
     return this.prisma.habit.findMany({
       where: { userId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        repetitionInterval: true,
+        repetitionUnit: true,
+        points: true,
+        userId: true,
+        isActive: true,
+        streak: true,
+        longestStreak: true,
+        lastCompletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
   findOne(id: string, userId: string) {
     return this.prisma.habit.findUnique({
       where: { id, userId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        repetitionInterval: true,
+        repetitionUnit: true,
+        points: true,
+        userId: true,
+        isActive: true,
+        streak: true,
+        longestStreak: true,
+        lastCompletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
@@ -102,6 +132,7 @@ export class HabitService {
       await prisma.habitCompletion.create({
         data: {
           habitId: id,
+          userId: userId,
           completedAt: now,
           notes,
         },

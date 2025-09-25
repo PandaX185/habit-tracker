@@ -50,7 +50,7 @@ describe('HabitService', () => {
         repetitionInterval: 2,
         repetitionUnit: 'weeks',
         points: 20,
-      } as Prisma.HabitCreateInput;
+      };
 
       const result = await service.create(createHabitDto, user.id);
 
@@ -198,7 +198,7 @@ describe('HabitService', () => {
         },
       });
 
-      const updateHabitDto: Prisma.HabitUpdateInput = {
+      const updateHabitDto = {
         title: 'Updated Habit',
         points: 15,
       };
@@ -225,7 +225,7 @@ describe('HabitService', () => {
         },
       });
 
-      const updateHabitDto: Prisma.HabitUpdateInput = { title: 'Updated' };
+      const updateHabitDto = { title: 'Updated' };
 
       await expect(
         service.update('non-existent-id', updateHabitDto, user.id),

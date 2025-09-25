@@ -14,18 +14,20 @@ datasource db {
 }
 
 model User {
-  id           String       @id @default(uuid())
-  username     String       @unique
-  email        String       @unique
-  fullname     String
-  passwordHash String?
-  googleId     String?      @unique
-  avatarUrl    String?
-  xpPoints     Int          @default(0)
-  level        Int          @default(0)
-  habits       Habit[]
-  friendships  Friendship[] @relation("UserFriendships")
-  friendOf     Friendship[] @relation("FriendOf")
+  id                String             @id @default(uuid())
+  username          String             @unique
+  email             String             @unique
+  fullname          String
+  passwordHash      String?
+  googleId          String?            @unique
+  avatarUrl         String?
+  xpPoints          Int                @default(0)
+  level             Int                @default(0)
+  habits            Habit[]
+  friendships       Friendship[]       @relation("UserFriendships")
+  friendOf          Friendship[]       @relation("FriendOf")
+  habitParticipants HabitParticipant[]
+  habitCompletions  HabitCompletion[]
 
   // Indexes for performance
   @@index([email])
@@ -57,43 +59,79 @@ model Friendship {
 }
 
 model Habit {
-  id                 String            @id @default(uuid())
+  id                 String             @id @default(uuid())
   title              String
   description        String?
-  repetitionInterval Int               @default(1)
+  repetitionInterval Int                @default(1)
   repetitionUnit     String
   points             Int
-  userId             String
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String // Owner of the habit
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isCompetitive      Boolean            @default(false) // Whether this is a competitive habit
+  maxParticipants    Int? // Maximum number of participants (null = unlimited)
   difficulty         Int?
-  isActive           Boolean           @default(true)
-  streak             Int               @default(0)
-  longestStreak      Int               @default(0)
+  isActive           Boolean            @default(true)
+  // Streak tracking (only meaningful for personal habits)
+  streak             Int                @default(0)
+  longestStreak      Int                @default(0)
   lastCompletedAt    DateTime?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  participants       HabitParticipant[]
   completions        HabitCompletion[]
 
   // Constraints for data integrity
   @@index([userId]) // Foreign key index
   @@index([userId, isActive]) // Active habits per user
   @@index([userId, createdAt]) // Recent habits
-  @@index([lastCompletedAt]) // Recently completed habits
-  @@index([streak]) // High streak habits
-  @@index([repetitionUnit]) // Habits by frequency
+  @@index([isCompetitive]) // Competitive vs personal habits
+}
+
+enum HabitParticipantStatus {
+  PENDING // Invited but not accepted
+  ACCEPTED // Accepted invitation
+  DECLINED // Declined invitation
+  REMOVED // Removed by owner
+}
+
+model HabitParticipant {
+  id          String                 @id @default(uuid())
+  habitId     String
+  userId      String
+  status      HabitParticipantStatus @default(PENDING)
+  joinedAt    DateTime? // When they accepted
+  invitedAt   DateTime               @default(now())
+  habit       Habit                  @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions HabitCompletion[]
+
+  // Unique constraint prevents duplicate participations
+  @@unique([habitId, userId])
+  // Indexes for performance
+  @@index([habitId])
+  @@index([userId])
+  @@index([habitId, status]) // Participants by status per habit
+  @@index([status]) // Global status filtering
 }
 
 model HabitCompletion {
-  id          String   @id @default(uuid())
-  habitId     String
-  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
-  completedAt DateTime @default(now())
-  notes       String?
+  id            String            @id @default(uuid())
+  habitId       String
+  userId        String // Who completed it
+  participantId String? // For competitive habits
+  habit         Habit             @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participant   HabitParticipant? @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  completedAt   DateTime          @default(now())
+  notes         String?
 
-  // Unique constraint prevents duplicate completions per day
-  @@unique([habitId, completedAt])
+  // Unique constraint prevents duplicate completions per day per user
+  @@unique([habitId, userId, completedAt])
   // Indexes for performance
   @@index([habitId]) // Foreign key index
+  @@index([userId]) // User completions
+  @@index([participantId]) // Participant completions
   @@index([habitId, completedAt]) // Time-based queries per habit
+  @@index([userId, completedAt]) // Time-based queries per user
   @@index([completedAt]) // Global completion queries
 }

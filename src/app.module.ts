@@ -7,6 +7,7 @@ import { HabitModule } from './habit/habit.module';
 import { AuthModule } from './auth/auth.module';
 import { FriendshipModule } from './friendship/friendship.module';
 import { StatsModule } from './stats/stats.module';
+import { CompetitiveModule } from './competitive/competitive.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StatsModule } from './stats/stats.module';
     HabitModule,
     FriendshipModule,
     StatsModule,
+    CompetitiveModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
