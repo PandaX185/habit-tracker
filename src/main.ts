@@ -15,6 +15,7 @@ async function bootstrap() {
     .addTag('habits', 'Habit management endpoints')
     .addTag('progress', 'Progress tracking and analytics')
     .addTag('friendship', 'Social connections and friendships')
+    .addTag('stats', 'Leaderboards and user statistics')
     .addBearerAuth(
       {
         type: 'http',

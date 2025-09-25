@@ -6,6 +6,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { HabitModule } from './habit/habit.module';
 import { AuthModule } from './auth/auth.module';
 import { FriendshipModule } from './friendship/friendship.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FriendshipModule } from './friendship/friendship.module';
     AuthModule,
     HabitModule,
     FriendshipModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
