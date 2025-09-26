@@ -1,191 +1,160 @@
-# 🎯 Gamified Habit Tracker API<p align="center">
+# 🎯 Gamified Habit Tracker API
 
-<a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-A comprehensive REST API for a gamified habit tracking application built with NestJS, featuring user authentication, habit management, XP rewards, streak tracking, and background job scheduling.</p>
+<p align="center">
+  A comprehensive REST API for a gamified habit tracking application built with NestJS, featuring user authentication, habit management, XP rewards, streak tracking, badge system, competitive challenges, and background job scheduling.
+</p>
 
-![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+<p align="center">
+  <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS">
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT">
+  <img src="https://img.shields.io/badge/Google_OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google OAuth">
+</p>
 
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)[circleci-url]: https://circleci.com/gh/nestjs/nest
+<p align="center">
+  A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.
+</p>
 
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+## 📋 Table of Contents
 
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white) <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-
-![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white) <p align="center">
-
-![Google OAuth](https://img.shields.io/badge/Google_OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white)<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-
-## 📋 Table of Contents<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-
-- [Features](#features)<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-
-- [Tech Stack](#tech-stack)<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-
-- [Prerequisites](#prerequisites)<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-
-- [Installation](#installation)<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-
-- [Environment Setup](#environment-setup) <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-
-- [Database Setup](#database-setup) <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-
-- [Running the Application](#running-the-application) <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-
-- [API Documentation](#api-documentation)</p>
-
-- [Testing](#testing) <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-
-- [Project Structure](#project-structure) [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment Setup](#environment-setup)
+- [Database Setup](#database-setup)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
 - [Gamification System](#gamification-system)
-
-- [Background Jobs](#background-jobs)## Description
-
+- [Background Jobs](#background-jobs)
 - [Contributing](#contributing)
+- [License](#license)
 
-- [License](#license)[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## ✨ Features
 
-## ✨ Features## Project setup
+### 🔐 Authentication & Authorization
 
-### 🔐 Authentication & Authorization```bash
-
-- **JWT-based authentication** with secure token management$ npm install
-
-- **Google OAuth 2.0 integration** for seamless login```
-
+- **JWT-based authentication** with secure token management
+- **Google OAuth 2.0 integration** for seamless login
 - **Dual authentication** - support both traditional and OAuth login
+- **Account linking** - automatically link Google accounts to existing users
 
-- **Account linking** - automatically link Google accounts to existing users## Compile and run the project
+### 🎯 Habit Management
 
-### 🎯 Habit Management```bash
-
-- **CRUD operations** for habits with full user isolation# development
-
-- **Custom repetition intervals** (days, weeks, months)$ npm run start
-
+- **CRUD operations** for habits with full user isolation
+- **Custom repetition intervals** (days, weeks, months)
 - **Flexible scheduling** with intelligent deadline calculation
+- **Habit completion tracking** with timestamp recording
 
-- **Habit completion tracking** with timestamp recording# watch mode
+### 🏆 Badge System
 
-$ npm run start:dev
+- **Achievement badges** with different rarities (Common, Rare, Epic, Legendary)
+- **Multiple badge types**: Streak, Level, Habit Count, Category, Social, Consistency, Competitive
+- **XP rewards** for earning badges
+- **Progress tracking** for unearned badges
+- **Automatic badge checking** on relevant actions
+
+### ⚔️ Competitive Habits
+
+- **Create competitive habits** with multiple participants
+- **Challenge friends** to habit competitions
+- **Leaderboards** showing participant rankings
+- **Winner detection** and competitive badges
+- **Invitation system** for joining challenges
+
+### 👥 Social Features
+
+- **Friend system** with friend requests and acceptance
+- **Friend search** by username
+- **Social leaderboards** comparing with friends
+- **Competitive habit invitations** restricted to friends
+
+### 📊 Statistics & Analytics
+
+- **Personal statistics** with detailed habit metrics
+- **Friends leaderboard** with XP and level comparisons
+- **Competitive progress** tracking wins and participation
+- **Comprehensive user stats** including streaks and completion rates
 
 ### 🎮 Gamification System
 
-- **XP rewards** for completed habits# production mode
-
-- **Streak tracking** with intelligent reset logic$ npm run start:prod
-
-- **User leveling** system```
-
+- **XP rewards** for completed habits
+- **Streak tracking** with intelligent reset logic
+- **User leveling** system
 - **Difficulty-based scoring** for habits
-
-## Run tests
+- **Badge achievements** with rarity system
 
 ### ⚡ Background Processing
 
-- **BullMQ job scheduling** for habit reactivation```bash
-
-- **Redis-backed queues** for reliable job processing# unit tests
-
-- **Automatic habit reactivation** after completion cooldown$ npm run test
-
+- **BullMQ job scheduling** for habit reactivation
+- **Redis-backed queues** for reliable job processing
+- **Automatic habit reactivation** after completion cooldown
 - **Job cancellation** when habits are deleted
 
-# e2e tests
-
-### 🛡️ Security & Validation$ npm run test:e2e
+### 🛡️ Security & Validation
 
 - **Input validation** with class-validator
+- **Password hashing** with bcryptjs
+- **CORS support** for cross-origin requests
+- **Request rate limiting** ready
 
-- **Password hashing** with bcryptjs# test coverage
+## 🛠 Tech Stack
 
-- **CORS support** for cross-origin requests$ npm run test:cov
-
-- **Request rate limiting** ready```
-
-## 🛠 Tech Stack## Deployment
-
-### Backend FrameworkWhen you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Backend Framework
 
 - **NestJS** - Progressive Node.js framework for building efficient and scalable server-side applications
+- **TypeScript** - Typed superset of JavaScript for better development experience
 
-- **TypeScript** - Typed superset of JavaScript for better development experienceIf you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Database & ORM
 
-### Database & ORM```bash
-
-- **PostgreSQL** - Advanced open-source relational database$ npm install -g mau
-
-- **Prisma** - Next-generation ORM for TypeScript & Node.js$ mau deploy
-
-````
+- **PostgreSQL** - Advanced open-source relational database
+- **Prisma** - Next-generation ORM for TypeScript & Node.js
 
 ### Authentication & Security
 
-- **Passport.js** - Authentication middleware for Node.jsWith Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
+- **Passport.js** - Authentication middleware for Node.js
 - **JWT (JSON Web Tokens)** - Secure token-based authentication
-
-- **Google OAuth 2.0** - Social authentication## Resources
-
+- **Google OAuth 2.0** - Social authentication
 - **bcryptjs** - Password hashing
-
-Check out a few resources that may come in handy when working with NestJS:
 
 ### Job Scheduling & Caching
 
-- **BullMQ** - Premium message queue for Node.js- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- **BullMQ** - Premium message queue for Node.js
+- **Redis** - In-memory data structure store for caching and queues
 
-- **Redis** - In-memory data structure store for caching and queues- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+### Testing & Quality
 
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- **Jest** - Delightful JavaScript testing framework
+- **Supertest** - HTTP assertions library
+- **ESLint** - Pluggable JavaScript linter
+- **Prettier** - Opinionated code formatter
 
-### Testing & Quality- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+## 📋 Prerequisites
 
-- **Jest** - Delightful JavaScript testing framework- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+Before running this application, make sure you have the following installed:
 
-- **Supertest** - HTTP assertions library- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-
-- **ESLint** - Pluggable JavaScript linter- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-
-- **Prettier** - Opinionated code formatter- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-
-
-## 📋 Prerequisites## Support
-
-
-
-Before running this application, make sure you have the following installed:Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-
-
-- **Node.js** (v18 or higher)## Stay in touch
-
+- **Node.js** (v18 or higher)
 - **npm** or **yarn** package manager
+- **PostgreSQL** database
+- **Redis** server
+- **Google Cloud Console** account (for OAuth setup)
 
-- **PostgreSQL** database- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+## 🚀 Installation
 
-- **Redis** server- Website - [https://nestjs.com](https://nestjs.com/)
-
-- **Google Cloud Console** account (for OAuth setup)- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-
-
-## 🚀 Installation## License
-
-
-
-1. **Clone the repository**Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+1. **Clone the repository**
 
    ```bash
    git clone <repository-url>
    cd habit-tracker
-````
+   ```
 
 2. **Install dependencies**
 
@@ -269,6 +238,8 @@ The application will be available at `http://localhost:8000`
 
 ## 📚 API Documentation
 
+The API documentation is available via Swagger at `http://localhost:8000/api/docs`
+
 ### Authentication Endpoints
 
 #### Traditional Authentication
@@ -344,6 +315,91 @@ POST /habit/:id/complete
 # Mark habit as completed (awards XP, updates streak, schedules reactivation)
 ```
 
+### Badge System Endpoints
+
+```http
+GET /badges
+# Get all available badges
+
+GET /badges/my-badges
+# Get current user's earned badges
+
+GET /badges/progress
+# Get progress for unearned badges
+
+POST /badges/check-badges
+# Manually trigger badge checking and award any earned badges
+```
+
+### Competitive Habit Endpoints
+
+```http
+POST /competitive/habits
+# Create a new competitive habit
+
+GET /competitive/habits
+# Get user's competitive habits
+
+POST /competitive/habits/:habitId/invite/:userId
+# Invite a friend to join a competitive habit
+
+POST /competitive/invitations/:participantId/accept
+# Accept a competitive habit invitation
+
+POST /competitive/invitations/:participantId/decline
+# Decline a competitive habit invitation
+
+GET /competitive/invitations/pending
+# Get pending competitive habit invitations
+
+GET /competitive/habits/:habitId/leaderboard
+# Get leaderboard for a competitive habit
+
+POST /competitive/habits/:habitId/complete
+# Complete a competitive habit
+
+GET /competitive/habits/:habitId/check-winner
+# Check if current user is the winner of a competitive habit
+
+GET /competitive/progress
+# Get user's competitive progress statistics
+```
+
+### Social Features Endpoints
+
+```http
+POST /friendship/request/:userId
+# Send a friend request
+
+POST /friendship/accept/:requestId
+# Accept a friend request
+
+POST /friendship/decline/:requestId
+# Decline a friend request
+
+GET /friendship/friends
+# Get user's friends list
+
+GET /friendship/requests
+# Get pending friend requests
+
+DELETE /friendship/friends/:userId
+# Remove a friend
+
+GET /friendship/search/:username
+# Search for users by username
+```
+
+### Statistics Endpoints
+
+```http
+GET /stats/me
+# Get detailed user statistics
+
+GET /stats/leaderboard
+# Get friends leaderboard
+```
+
 ### Response Examples
 
 #### Successful Habit Completion
@@ -369,6 +425,32 @@ POST /habit/:id/complete
   "xpPoints": 150,
   "level": 2,
   "avatarUrl": "https://example.com/avatar.jpg"
+}
+```
+
+#### Badge Progress
+
+```json
+[
+  {
+    "badgeId": "badge-uuid",
+    "currentProgress": 5,
+    "targetProgress": 7,
+    "progressData": {
+      "currentStreak": 5
+    }
+  }
+]
+```
+
+#### Competitive Progress
+
+```json
+{
+  "totalCompetitiveHabits": 3,
+  "totalWins": 2,
+  "totalCompletions": 45,
+  "winRate": 66.67
 }
 ```
 
@@ -409,11 +491,11 @@ npm run test:debug
 ```
 habit-tracker/
 ├── src/
-│   ├── app.controller.ts       # Main application controller
-│   ├── app.module.ts           # Root application module
-│   ├── app.service.ts          # Main application service
-│   ├── main.ts                 # Application entry point
-│   ├── auth/                   # Authentication module
+│   ├── app.controller.ts           # Main application controller
+│   ├── app.module.ts               # Root application module
+│   ├── app.service.ts              # Main application service
+│   ├── main.ts                     # Application entry point
+│   ├── auth/                       # Authentication module
 │   │   ├── auth.controller.ts
 │   │   ├── auth.module.ts
 │   │   ├── auth.service.ts
@@ -421,20 +503,40 @@ habit-tracker/
 │   │   ├── jwt.strategy.ts
 │   │   ├── google.strategy.ts
 │   │   └── dto/
-│   ├── habit/                  # Habit management module
+│   ├── habit/                      # Habit management module
 │   │   ├── habit.controller.ts
 │   │   ├── habit.module.ts
 │   │   ├── habit.service.ts
-│   │   ├── habit.processor.ts  # BullMQ job processor
+│   │   ├── habit.processor.ts      # BullMQ job processor
 │   │   └── dto/
-│   └── prisma/                 # Database module
+│   ├── badges/                     # Badge system module
+│   │   ├── badge.controller.ts
+│   │   ├── badge.module.ts
+│   │   ├── badge.service.ts
+│   │   └── dto/
+│   ├── competitive/                # Competitive habits module
+│   │   ├── competitive.controller.ts
+│   │   ├── competitive.module.ts
+│   │   ├── competitive.service.ts
+│   │   └── dto/
+│   ├── friendship/                 # Social features module
+│   │   ├── friendship.controller.ts
+│   │   ├── friendship.module.ts
+│   │   ├── friendship.service.ts
+│   │   └── dto/
+│   ├── stats/                      # Statistics module
+│   │   ├── stats.controller.ts
+│   │   ├── stats.module.ts
+│   │   ├── stats.service.ts
+│   │   └── dto/
+│   └── prisma/                     # Database module
 │       └── prisma.service.ts
 ├── prisma/
-│   ├── schema.prisma           # Database schema
-│   └── migrations/             # Database migrations
-├── test/                       # Test files
-├── .env                        # Environment variables
-├── .env.example               # Environment template
+│   ├── schema.prisma               # Database schema
+│   └── migrations/                 # Database migrations
+├── test/                           # Test files
+├── .env                            # Environment variables
+├── .env.example                   # Environment template
 ├── package.json
 ├── tsconfig.json
 ├── jest.config.js
@@ -448,7 +550,21 @@ habit-tracker/
 - **Base XP**: Earned from completing habits
 - **Difficulty Multiplier**: Harder habits award more XP
 - **Level Progression**: XP thresholds determine user levels
-- **Streak Bonuses**: Future enhancement for consecutive completions
+- **Badge Bonuses**: Additional XP rewards for achievements
+
+### Badge System
+
+- **Achievement Types**: Streak, Level, Habit Count, Category, Social, Consistency, Competitive
+- **Rarity Levels**: Common, Rare, Epic, Legendary
+- **Progress Tracking**: See progress toward unearned badges
+- **Automatic Awarding**: Badges earned through relevant actions
+
+### Competitive Challenges
+
+- **Multiplayer Habits**: Challenge friends to habit competitions
+- **Leaderboards**: Track participant progress and rankings
+- **Winner Badges**: Special badges for competitive achievements
+- **Social Engagement**: Build habits with friends
 
 ### Habit Streaks
 
@@ -531,4 +647,4 @@ If you have any questions or need help with the project:
 
 ---
 
-**Happy Habit Tracking! 🎯✨**
+**Happy Habit Tracking! ???**
