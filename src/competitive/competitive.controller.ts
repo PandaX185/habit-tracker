@@ -234,4 +234,75 @@ export class CompetitiveController {
     const userId = req.user.userId;
     return this.competitiveService.getPendingInvitations(userId);
   }
+
+  @Get('habits/:habitId/check-winner')
+  @ApiOperation({
+    summary: 'Check challenge winner',
+    description: 'Check if the current user is the winner of a specific competitive habit challenge.'
+  })
+  @ApiParam({
+    name: 'habitId',
+    description: 'ID of the competitive habit',
+    example: '123e4567-e89b-12d3-a456-426614174000'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Winner check completed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        isWinner: {
+          type: 'boolean',
+          description: 'Whether the current user is the winner'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - you are not a participant in this habit'
+  })
+  async checkChallengeWinner(
+    @Req() req: RequestWithUser,
+    @Param('habitId') habitId: string
+  ) {
+    const userId = req.user.userId;
+    const isWinner = await this.competitiveService.checkChallengeWinner(habitId, userId);
+    return { isWinner };
+  }
+
+  @Get('progress')
+  @ApiOperation({
+    summary: 'Get competitive progress',
+    description: 'Get the user\'s competitive habit statistics including wins, participation, and completion counts.'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Competitive progress retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        totalCompetitiveHabits: {
+          type: 'number',
+          description: 'Total number of competitive habits participated in'
+        },
+        totalWins: {
+          type: 'number',
+          description: 'Total number of challenges won'
+        },
+        totalCompletions: {
+          type: 'number',
+          description: 'Total habit completions in competitive habits'
+        },
+        winRate: {
+          type: 'number',
+          description: 'Win rate percentage'
+        }
+      }
+    }
+  })
+  async getCompetitiveProgress(@Req() req: RequestWithUser) {
+    const userId = req.user.userId;
+    return this.competitiveService.getCompetitiveProgress(userId);
+  }
 }

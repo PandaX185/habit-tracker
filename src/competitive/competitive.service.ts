@@ -479,4 +479,57 @@ export class CompetitiveService {
       }
     });
   }
+
+  // Get user's competitive progress/stats
+  async getCompetitiveProgress(userId: string) {
+    // Get all competitive habits the user has participated in
+    const userParticipants = await this.prisma.habitParticipant.findMany({
+      where: {
+        userId,
+        habit: {
+          isCompetitive: true,
+        },
+        status: 'ACCEPTED',
+      },
+      include: {
+        habit: {
+          include: {
+            participants: {
+              where: { status: 'ACCEPTED' },
+              include: { completions: true }
+            }
+          }
+        },
+        completions: true,
+      },
+    });
+
+    let totalWins = 0;
+    let totalHabits = userParticipants.length;
+    let totalCompletions = 0;
+
+    for (const participant of userParticipants) {
+      totalCompletions += participant.completions.length;
+
+      // Check if this user has the most completions in this habit
+      const allParticipants = participant.habit.participants;
+      if (allParticipants.length > 1) {
+        const maxCompletions = Math.max(...allParticipants.map(p => p.completions.length));
+        if (participant.completions.length === maxCompletions) {
+          // Check if there are multiple with the same count (tie)
+          const winners = allParticipants.filter(p => p.completions.length === maxCompletions);
+          if (winners.length === 1 && winners[0].userId === userId) {
+            totalWins++;
+          }
+        }
+      }
+    }
+
+    return {
+      totalCompetitiveHabits: totalHabits,
+      totalWins,
+      totalCompletions,
+      winRate: totalHabits > 0 ? (totalWins / totalHabits) * 100 : 0,
+    };
+  }
 }
