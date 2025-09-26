@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { BadgeService } from '../badges/badge.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CompetitiveService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly badgeService: BadgeService) {}
 
   // Create a competitive habit
   async createCompetitiveHabit(
@@ -19,7 +20,7 @@ export class CompetitiveService {
       maxParticipants?: number;
     }
   ) {
-    return this.prisma.habit.create({
+    const habit = await this.prisma.habit.create({
       data: {
         ...habitData,
         userId: ownerId,
@@ -49,6 +50,15 @@ export class CompetitiveService {
         }
       }
     });
+
+    // Check for competitive badges
+    try {
+      await this.badgeService.checkAndAwardBadges(ownerId, 'competitive_created');
+    } catch (error) {
+      console.error(`Failed to check badges for competitive habit creation ${ownerId}:`, error);
+    }
+
+    return habit;
   }
 
   // Invite a user to a competitive habit
@@ -153,7 +163,7 @@ export class CompetitiveService {
       throw new NotFoundException('Invitation not found or already processed');
     }
 
-    return this.prisma.habitParticipant.update({
+    const updatedParticipant = await this.prisma.habitParticipant.update({
       where: { id: participantId },
       data: {
         status: 'ACCEPTED',
@@ -172,6 +182,15 @@ export class CompetitiveService {
         }
       }
     });
+
+    // Check for competitive badges
+    try {
+      await this.badgeService.checkAndAwardBadges(userId, 'competitive_joined');
+    } catch (error) {
+      console.error(`Failed to check badges for competitive habit join ${userId}:`, error);
+    }
+
+    return updatedParticipant;
   }
 
   // Decline invitation to competitive habit
@@ -401,6 +420,40 @@ export class CompetitiveService {
       participantCount: habit.participants.length,
       isOwner: habit.userId === userId,
     }));
+  }
+
+  // Check if a user has won a habit challenge (has the most completions)
+  async checkChallengeWinner(habitId: string, userId: string): Promise<boolean> {
+    // Get all participants with their completion counts
+    const participants = await this.prisma.habitParticipant.findMany({
+      where: {
+        habitId,
+        status: 'ACCEPTED',
+      },
+      include: {
+        completions: true,
+      }
+    });
+
+    if (participants.length === 0) return false;
+
+    // Find the participant with the most completions
+    const winner = participants.reduce((prev, current) => {
+      return prev.completions.length > current.completions.length ? prev : current;
+    });
+
+    // Check if this user is the winner
+    if (winner.userId === userId) {
+      // Award badge for winning
+      try {
+        await this.badgeService.checkAndAwardBadges(userId, 'challenge_won');
+      } catch (error) {
+        console.error(`Failed to check badges for challenge win ${userId}:`, error);
+      }
+      return true;
+    }
+
+    return false;
   }
 
   // Get pending invitations for user

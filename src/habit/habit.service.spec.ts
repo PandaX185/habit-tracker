@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HabitService } from './habit.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { BadgeService } from '../badges/badge.service';
 import { Prisma } from '@prisma/client';
 import { getQueueToken } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -9,6 +10,7 @@ describe('HabitService', () => {
   let service: HabitService;
   let prismaService: PrismaService;
   let mockQueue: jest.Mocked<Queue>;
+  let mockBadgeService: jest.Mocked<BadgeService>;
 
   beforeEach(async () => {
     const mockQueueProvider = {
@@ -19,13 +21,21 @@ describe('HabitService', () => {
       },
     };
 
+    const mockBadgeServiceProvider = {
+      provide: BadgeService,
+      useValue: {
+        checkAndAwardBadges: jest.fn(),
+      },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [HabitService, PrismaService, mockQueueProvider],
+      providers: [HabitService, PrismaService, mockQueueProvider, mockBadgeServiceProvider],
     }).compile();
 
     service = module.get<HabitService>(HabitService);
     prismaService = module.get<PrismaService>(PrismaService);
     mockQueue = module.get(getQueueToken('habit-reactivation'));
+    mockBadgeService = module.get(BadgeService);
   });
 
   it('should be defined', () => {

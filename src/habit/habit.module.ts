@@ -4,6 +4,7 @@ import { HabitService } from './habit.service';
 import { HabitController } from './habit.controller';
 import { HabitProcessor } from './habit.processor';
 import { AuthModule } from '../auth/auth.module';
+import { BadgeModule } from '../badges/badge.module';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
@@ -12,6 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
       name: 'habit-reactivation',
     }),
     AuthModule,
+    BadgeModule,
   ],
   controllers: [HabitController],
   providers: [HabitService, HabitProcessor, PrismaService],

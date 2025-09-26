@@ -1,10 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { BadgeService } from '../badges/badge.service';
 import { FriendshipStatus } from '@prisma/client';
 
 @Injectable()
 export class FriendshipService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(FriendshipService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly badgeService: BadgeService,
+  ) {}
 
   // - sendFriendRequest
   async sendFriendRequest(fromUserId: string, toUserId: string) {
@@ -17,10 +23,20 @@ export class FriendshipService {
   }
   // - acceptFriendRequest
   async acceptFriendRequest(requestId: string) {
-    return this.prisma.friendship.update({
+    const friendship = await this.prisma.friendship.update({
       where: { id: requestId },
       data: { status: FriendshipStatus.ACCEPTED },
     });
+
+    // Check for social badges for both users
+    try {
+      await this.badgeService.checkAndAwardBadges(friendship.userId, 'friend_added');
+      await this.badgeService.checkAndAwardBadges(friendship.friendId, 'friend_added');
+    } catch (error) {
+      this.logger.error(`Failed to check badges for friendship acceptance ${requestId}:`, error);
+    }
+
+    return friendship;
   }
 
   // - declineFriendRequest

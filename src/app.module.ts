@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { FriendshipModule } from './friendship/friendship.module';
 import { StatsModule } from './stats/stats.module';
 import { CompetitiveModule } from './competitive/competitive.module';
+import { BadgeModule } from './badges/badge.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CompetitiveModule } from './competitive/competitive.module';
     FriendshipModule,
     StatsModule,
     CompetitiveModule,
+    BadgeModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

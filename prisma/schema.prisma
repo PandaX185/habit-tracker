@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -28,6 +25,7 @@ model User {
   friendOf          Friendship[]       @relation("FriendOf")
   habitParticipants HabitParticipant[]
   habitCompletions  HabitCompletion[]
+  userBadges        UserBadge[]
 
   // Indexes for performance
   @@index([email])
@@ -134,4 +132,57 @@ model HabitCompletion {
   @@index([habitId, completedAt]) // Time-based queries per habit
   @@index([userId, completedAt]) // Time-based queries per user
   @@index([completedAt]) // Global completion queries
+}
+
+enum BadgeType {
+  STREAK
+  LEVEL
+  HABIT_COUNT
+  CATEGORY
+  SOCIAL
+  CONSISTENCY
+  COMPETITIVE
+}
+
+enum BadgeRarity {
+  COMMON // Easy to achieve
+  RARE // Moderate difficulty
+  EPIC // Hard to achieve
+  LEGENDARY // Very hard to achieve
+}
+
+model Badge {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String
+  icon        String? // Icon URL or emoji
+  type        BadgeType
+  rarity      BadgeRarity @default(COMMON)
+  criteria    Json // Flexible criteria for earning the badge
+  points      Int         @default(0) // XP bonus when earned
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  userBadges  UserBadge[]
+
+  // Indexes for performance
+  @@index([type])
+  @@index([rarity])
+  @@index([isActive])
+}
+
+model UserBadge {
+  id       String   @id @default(uuid())
+  userId   String
+  badgeId  String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge    Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  earnedAt DateTime @default(now())
+  progress Int      @default(0) // For progress tracking (0-100)
+
+  // Unique constraint prevents duplicate badges per user
+  @@unique([userId, badgeId])
+  // Indexes for performance
+  @@index([userId])
+  @@index([badgeId])
+  @@index([earnedAt])
 }

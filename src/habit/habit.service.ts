@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { BadgeService } from '../badges/badge.service';
 import { CreateHabitDto, UpdateHabitDto } from './habit.dto';
 
 @Injectable()
@@ -11,12 +12,21 @@ export class HabitService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly badgeService: BadgeService,
     @InjectQueue('habit-reactivation') private readonly habitQueue: Queue,
   ) {}
 
   create(createHabitDto: CreateHabitDto, userId: string) {
     return this.prisma.habit.create({
       data: { ...createHabitDto, user: { connect: { id: userId } }, isCompetitive: false },
+    }).then(async (habit) => {
+      // Check for habit count badges after creating a habit
+      try {
+        await this.badgeService.checkAndAwardBadges(userId, 'habit_created');
+      } catch (error) {
+        this.logger.error(`Failed to check badges for habit creation ${userId}:`, error);
+      }
+      return habit;
     });
   }
 
@@ -161,7 +171,13 @@ export class HabitService {
 
     // Update user XP and level (outside transaction for reliability)
     try {
-      await this.updateUserProgress(userId, habit.points);
+      const leveledUp = await this.updateUserProgress(userId, habit.points);
+      
+      // Check for badges after habit completion and potential level up
+      await this.badgeService.checkAndAwardBadges(userId, 'habit_completion');
+      if (leveledUp) {
+        await this.badgeService.checkAndAwardBadges(userId, 'level_up');
+      }
     } catch (error) {
       this.logger.error(`Failed to update user progress for ${userId}:`, error);
       // Don't fail the habit completion if user progress update fails
@@ -390,7 +406,7 @@ export class HabitService {
     return Object.values(calendarData);
   }
 
-  private async updateUserProgress(userId: string, points: number) {
+  private async updateUserProgress(userId: string, points: number): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -399,6 +415,7 @@ export class HabitService {
       throw new Error('User not found');
     }
 
+    const oldLevel = user.level;
     const newXpPoints = user.xpPoints + points;
     const newLevel = Math.floor(newXpPoints / 100) + 1;
 
@@ -409,5 +426,7 @@ export class HabitService {
         level: newLevel,
       },
     });
+
+    return newLevel > oldLevel; // Return true if leveled up
   }
 }
