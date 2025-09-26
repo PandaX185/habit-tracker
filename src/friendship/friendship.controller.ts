@@ -8,7 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { FriendshipService } from './friendship.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { FriendRequestResponseDto, FriendshipResponseDto } from './friendship.dto';
+import { FriendRequestResponseDto, FriendshipResponseDto, UserSearchResultDto } from './friendship.dto';
 
 interface RequestWithUser extends Request {
   user: {
@@ -171,5 +171,24 @@ export class FriendshipController {
   async removeFriend(@Req() req: RequestWithUser, @Param('userId') userId: string) {
     const fromUserId = req.user.userId;
     return this.friendshipService.removeFriend(fromUserId, userId);
+  }
+
+  @Get('search/:username')
+  @ApiOperation({
+    summary: 'Search users by username',
+    description: 'Search for users by their username. Returns a list of users matching the search criteria.'
+  })
+  @ApiParam({
+    name: 'username',
+    description: 'Username to search for',
+    example: 'john_doe'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Users found successfully',
+    type: [UserSearchResultDto]
+  })
+  async searchUsers(@Param('username') username: string) {
+    return this.friendshipService.searchUsers(username);
   }
 }

@@ -1,6 +1,5 @@
 // DTOs for friendship operations
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
 
 export class SendFriendRequestDto {
   // No additional fields needed - target user ID comes from URL param
@@ -122,4 +121,31 @@ export class FriendshipStatsDto {
     example: 5
   })
   sentRequests: number;
+}
+
+export class UserSearchResultDto {
+  @ApiProperty({
+    description: 'Unique identifier of the user',
+    example: '123e4567-e89b-12d3-a456-426614174000'
+  })
+  id: string;
+
+  @ApiProperty({
+    description: 'Username of the user',
+    example: 'alice_wonder'
+  })
+  username: string;
+
+  @ApiProperty({
+    description: 'Full name of the user',
+    example: 'Alice Wonder'
+  })
+  fullname: string;
+
+  @ApiProperty({
+    description: 'Avatar URL of the user, if available',
+    example: 'https://example.com/avatar3.jpg',
+    nullable: true
+  })
+  avatarUrl?: string;
 }

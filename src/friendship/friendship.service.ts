@@ -66,4 +66,23 @@ export class FriendshipService {
       },
     });
   }
+
+  async searchUsers(query: string) {
+    return this.prisma.user.findMany({
+      where: {
+        OR: [
+          { username: { contains: query, mode: 'insensitive' } },
+          { email: { contains: query, mode: 'insensitive' } },
+          { fullname: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        fullname: true,
+        avatarUrl: true,
+      },
+    });
+  }
 }
