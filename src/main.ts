@@ -22,13 +22,13 @@ async function bootstrap() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        name: 'JWT',
+        name: 'Authorization',
         description: 'Enter JWT token',
         in: 'header',
       },
       'JWT-auth',
     )
-    .addServer('http://localhost:8000', 'Development server')
+    .addServer('http://localhost:8000/api', 'Development server')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
