@@ -14,7 +14,7 @@ export class HabitService {
     private readonly prisma: PrismaService,
     private readonly badgeService: BadgeService,
     @InjectQueue('habit-reactivation') private readonly habitQueue: Queue,
-  ) {}
+  ) { }
 
   create(createHabitDto: CreateHabitDto, userId: string) {
     return this.prisma.habit.create({
@@ -102,7 +102,7 @@ export class HabitService {
     }
 
     if (!habit.isActive) {
-      throw new Error('Habit is not active');
+      return { message: 'Habit is not active. Wait until the next deadline to complete it again.' };
     }
 
     // Check if already completed today
@@ -172,7 +172,7 @@ export class HabitService {
     // Update user XP and level (outside transaction for reliability)
     try {
       const leveledUp = await this.updateUserProgress(userId, habit.points);
-      
+
       // Check for badges after habit completion and potential level up
       await this.badgeService.checkAndAwardBadges(userId, 'habit_completion');
       if (leveledUp) {
