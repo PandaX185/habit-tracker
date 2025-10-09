@@ -57,7 +57,15 @@ export class FriendshipService {
         status: FriendshipStatus.ACCEPTED,
       },
       include: {
-        friend: true,
+        friend: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            fullname: true,
+            avatarUrl: true,
+          },
+        }
       },
       omit: { userId: true, friendId: true },
     });
@@ -74,7 +82,15 @@ export class FriendshipService {
         status: FriendshipStatus.PENDING,
       },
       include: {
-        friend: true,
+        friend: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            fullname: true,
+            avatarUrl: true,
+          },
+        },
       },
     });
   }
