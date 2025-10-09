@@ -300,11 +300,7 @@ export class HabitService {
         avgCompletionsPerDay: number | null;
       }>
     >`
-      SELECT
-        COUNT(*) as "totalCompletions",
-        COUNT(DISTINCT DATE("completedAt")) as "activeDays",
-        AVG("completions_per_day") as "avgCompletionsPerDay"
-      FROM (
+      WITH daily_stats AS (
         SELECT
           DATE("completedAt") as "completion_date",
           COUNT(*) as "completions_per_day"
@@ -313,7 +309,12 @@ export class HabitService {
         WHERE h."userId" = ${userId}
         AND hc."completedAt" >= ${startDate}
         GROUP BY DATE("completedAt")
-      ) daily_stats
+      )
+      SELECT
+        (SELECT COUNT(*) FROM "HabitCompletion" hc JOIN "Habit" h ON hc."habitId" = h."id" WHERE h."userId" = ${userId} AND hc."completedAt" >= ${startDate}) as "totalCompletions",
+        COUNT(DISTINCT "completion_date") as "activeDays",
+        AVG("completions_per_day") as "avgCompletionsPerDay"
+      FROM daily_stats
     `;
 
     // Return the first result or default values
