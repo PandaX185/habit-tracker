@@ -39,7 +39,6 @@ export class HabitService {
         description: true,
         repetitionInterval: true,
         repetitionUnit: true,
-        points: true,
         userId: true,
         isActive: true,
         streak: true,
@@ -60,7 +59,6 @@ export class HabitService {
         description: true,
         repetitionInterval: true,
         repetitionUnit: true,
-        points: true,
         userId: true,
         isActive: true,
         streak: true,
@@ -171,7 +169,7 @@ export class HabitService {
 
     // Update user XP and level (outside transaction for reliability)
     try {
-      const leveledUp = await this.updateUserProgress(userId, habit.points);
+      const leveledUp = await this.updateUserProgress(userId, 1); // All habits now give 1 XP point
       
       // Check for badges after habit completion and potential level up
       await this.badgeService.checkAndAwardBadges(userId, 'habit_completion');
@@ -377,7 +375,6 @@ export class HabitService {
           select: {
             id: true,
             title: true,
-            points: true,
           },
         },
       },
@@ -397,10 +394,9 @@ export class HabitService {
       acc[date].completions.push({
         habitId: completion.habit.id,
         habitTitle: completion.habit.title,
-        points: completion.habit.points,
         completedAt: completion.completedAt,
       });
-      acc[date].totalPoints += completion.habit.points;
+      acc[date].totalPoints += 1; // All habits now give 1 point
       return acc;
     }, {} as Record<string, { date: string; completions: any[]; totalPoints: number }>);
 

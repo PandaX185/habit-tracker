@@ -76,12 +76,6 @@ export class UserStatsDto {
   longestTotalStreak: number;
 
   @ApiProperty({
-    description: 'Average points per habit',
-    example: 15.5
-  })
-  averagePointsPerHabit: number;
-
-  @ApiProperty({
     description: 'Completion rate percentage over the last 30 days',
     example: 78.5
   })
@@ -177,7 +171,6 @@ export class UserDetailedStatsDto {
       totalCompletions: { type: 'number', example: 245 },
       currentTotalStreak: { type: 'number', example: 42 },
       longestTotalStreak: { type: 'number', example: 67 },
-      averagePointsPerHabit: { type: 'number', example: 15.5 },
       completionRate: { type: 'number', example: 78.5 }
     }
   })
@@ -187,7 +180,6 @@ export class UserDetailedStatsDto {
     totalCompletions: number;
     currentTotalStreak: number;
     longestTotalStreak: number;
-    averagePointsPerHabit: number;
     completionRate: number;
   };
 

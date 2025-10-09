@@ -175,7 +175,6 @@ export class CompetitiveService {
             id: true,
             title: true,
             description: true,
-            points: true,
             repetitionInterval: true,
             repetitionUnit: true,
           }
@@ -365,7 +364,7 @@ export class CompetitiveService {
       throw new BadRequestException('User not found');
     }
 
-    const newXpPoints = user.xpPoints + habit.points;
+    const newXpPoints = user.xpPoints + 1;
     const newLevel = Math.floor(newXpPoints / 100) + 1;
 
     await this.prisma.user.update({

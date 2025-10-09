@@ -136,7 +136,6 @@ export class StatsService {
         streak: true,
         longestStreak: true,
         isActive: true,
-        points: true,
         _count: {
           select: { completions: true }
         }
@@ -148,9 +147,6 @@ export class StatsService {
     const totalCompletions = habits.reduce((sum, h) => sum + h._count.completions, 0);
     const currentTotalStreak = habits.reduce((sum, h) => sum + h.streak, 0);
     const longestTotalStreak = habits.reduce((sum, h) => sum + h.longestStreak, 0);
-    const averagePointsPerHabit = totalHabits > 0
-      ? habits.reduce((sum, h) => sum + h.points, 0) / totalHabits
-      : 0;
 
     // Calculate completion rate (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -171,7 +167,6 @@ export class StatsService {
       totalCompletions,
       currentTotalStreak,
       longestTotalStreak,
-      averagePointsPerHabit: Math.round(averagePointsPerHabit * 100) / 100,
       completionRate: Math.round(completionRate * 100) / 100,
     };
   }
