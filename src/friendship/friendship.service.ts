@@ -50,12 +50,16 @@ export class FriendshipService {
   async getFriends(userId: string) {
     return this.prisma.friendship.findMany({
       where: {
-        userId,
+        OR:[
+          { userId },
+          { friendId: userId },
+        ],
         status: FriendshipStatus.ACCEPTED,
       },
       include: {
         friend: true,
       },
+      omit: { userId: true, friendId: true },
     });
   }
 
@@ -63,7 +67,10 @@ export class FriendshipService {
   async getPendingRequests(userId: string) {
     return this.prisma.friendship.findMany({
       where: {
-        userId,
+        OR: [
+          { userId },
+          { friendId: userId },
+        ],
         status: FriendshipStatus.PENDING,
       },
       include: {
