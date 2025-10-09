@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, MethodNotAllowedException, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Prisma } from '@prisma/client';
@@ -98,11 +98,11 @@ export class HabitService {
     });
 
     if (!habit) {
-      throw new Error('Habit not found');
+      throw new NotFoundException('Habit not found');
     }
 
     if (!habit.isActive) {
-      throw new Error('Habit is not active');
+      throw new MethodNotAllowedException('Habit is not active');
     }
 
     // Check if already completed today
