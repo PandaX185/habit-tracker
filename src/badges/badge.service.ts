@@ -173,9 +173,48 @@ export class BadgeService {
   }
 
   private calculateCompetitiveProgress(user: any, badge: any): BadgeProgressDto | null {
-    // This would require additional queries for competitive habits
-    // For now, return null as this is more complex and better checked at specific events
-    return null;
+    const { action, targetWins } = badge.criteria;
+
+    let currentProgress = 0;
+    let targetProgress = 1;
+    let progressData: Record<string, any> = {};
+
+    switch (action) {
+      case 'first_competitive': {
+        const competitiveHabits = user.habits.filter(h => h.isCompetitive);
+        currentProgress = competitiveHabits.length;
+        targetProgress = 1;
+        progressData = { competitiveHabits: currentProgress };
+        break;
+      }
+      case 'first_win': {
+        // Count competitive wins (assuming user.competitiveWins exists)
+        currentProgress = user.competitiveWins || 0;
+        targetProgress = 1;
+        progressData = { competitiveWins: currentProgress };
+        break;
+      }
+      case 'multiple_wins': {
+        // Count competitive wins (assuming user.competitiveWins exists)
+        currentProgress = user.competitiveWins || 0;
+        targetProgress = targetWins || 5;
+        progressData = { competitiveWins: currentProgress, targetWins: targetProgress };
+        break;
+      }
+      default:
+        return null;
+    }
+
+    if (currentProgress >= targetProgress) {
+      return null; // Should have been awarded already
+    }
+
+    return {
+      badgeId: badge.id,
+      currentProgress,
+      targetProgress,
+      progressData,
+    };
   }
 
   async checkAndAwardBadges(userId: string, trigger: 'habit_completion' | 'level_up' | 'habit_created' | 'friend_added' | 'competitive_created' | 'competitive_joined' | 'competitive_completed' | 'challenge_won') {
