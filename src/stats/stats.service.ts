@@ -173,12 +173,12 @@ export class StatsService {
 
   // Helper method to calculate level progress
   private calculateLevelProgress(xpPoints: number) {
-    const currentLevel = Math.floor(xpPoints / 100) + 1;
-    const xpForCurrentLevel = (currentLevel - 1) * 100;
-    const xpForNextLevel = currentLevel * 100;
+    const currentLevel = Math.floor(xpPoints / 10) + 1;
+    const xpForCurrentLevel = (currentLevel - 1) * 10;
+    const xpForNextLevel = currentLevel * 10;
     const progressInLevel = xpPoints - xpForCurrentLevel;
     const xpNeededForNextLevel = xpForNextLevel - xpPoints;
-    const progressPercentage = (progressInLevel / 100) * 100;
+    const progressPercentage = (progressInLevel / 10) * 100;
 
     return {
       currentLevel,

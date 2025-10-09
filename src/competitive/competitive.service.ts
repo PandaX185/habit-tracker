@@ -365,7 +365,7 @@ export class CompetitiveService {
     }
 
     const newXpPoints = user.xpPoints + 1;
-    const newLevel = Math.floor(newXpPoints / 100) + 1;
+    const newLevel = Math.floor(newXpPoints / 10) + 1;
 
     await this.prisma.user.update({
       where: { id: userId },

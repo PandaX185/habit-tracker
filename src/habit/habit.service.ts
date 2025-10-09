@@ -414,7 +414,7 @@ export class HabitService {
 
     const oldLevel = user.level;
     const newXpPoints = user.xpPoints + points;
-    const newLevel = Math.floor(newXpPoints / 100) + 1;
+    const newLevel = Math.floor(newXpPoints / 10) + 1;
 
     await this.prisma.user.update({
       where: { id: userId },
