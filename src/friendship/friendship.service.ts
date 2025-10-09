@@ -48,9 +48,9 @@ export class FriendshipService {
 
   // - getFriends
   async getFriends(userId: string) {
-    return this.prisma.friendship.findMany({
+    const friendships = await this.prisma.friendship.findMany({
       where: {
-        OR:[
+        OR: [
           { userId },
           { friendId: userId },
         ],
@@ -65,15 +65,35 @@ export class FriendshipService {
             fullname: true,
             avatarUrl: true,
           },
-        }
+        },
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            fullname: true,
+            avatarUrl: true,
+          },
+        },
       },
-      omit: { userId: true, friendId: true },
+    });
+
+    // Only return the other user's data
+    return friendships.map(f => {
+      const otherUser = f.userId === userId ? f.friend : f.user;
+      return {
+        id: otherUser.id,
+        username: otherUser.username,
+        email: otherUser.email,
+        fullname: otherUser.fullname,
+        avatarUrl: otherUser.avatarUrl,
+      };
     });
   }
 
   // - getPendingRequests
   async getPendingRequests(userId: string) {
-    return this.prisma.friendship.findMany({
+    const requests = await this.prisma.friendship.findMany({
       where: {
         OR: [
           { userId },
@@ -91,7 +111,28 @@ export class FriendshipService {
             avatarUrl: true,
           },
         },
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            fullname: true,
+            avatarUrl: true,
+          },
+        },
       },
+    });
+
+    // Only return the other user's data
+    return requests.map(f => {
+      const otherUser = f.userId === userId ? f.friend : f.user;
+      return {
+        id: otherUser.id,
+        username: otherUser.username,
+        email: otherUser.email,
+        fullname: otherUser.fullname,
+        avatarUrl: otherUser.avatarUrl,
+      };
     });
   }
 
