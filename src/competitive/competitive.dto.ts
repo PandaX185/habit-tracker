@@ -45,29 +45,6 @@ export class CreateCompetitiveHabitDto {
   @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
   repetitionUnit: string;
 
-  @ApiProperty({
-    description: 'XP points awarded for completing this habit',
-    example: 20,
-    minimum: 1,
-    maximum: 1000,
-  })
-  @IsInt()
-  @Min(1, { message: 'Points must be at least 1' })
-  @Max(1000, { message: 'Points must not exceed 1000' })
-  points: number;
-
-  @ApiPropertyOptional({
-    description: 'Difficulty level (1-5)',
-    example: 3,
-    minimum: 1,
-    maximum: 5,
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(1, { message: 'Difficulty must be at least 1' })
-  @Max(5, { message: 'Difficulty must not exceed 5' })
-  difficulty?: number;
-
   @ApiPropertyOptional({
     description: 'Maximum number of participants (null = unlimited)',
     example: 10,
@@ -124,12 +101,6 @@ export class CompetitiveHabitDto {
   repetitionUnit: string;
 
   @ApiProperty({
-    description: 'XP points per completion',
-    example: 20
-  })
-  points: number;
-
-  @ApiProperty({
     description: 'ID of the habit owner',
     example: '123e4567-e89b-12d3-a456-426614174000'
   })
@@ -146,12 +117,6 @@ export class CompetitiveHabitDto {
     example: 10
   })
   maxParticipants: number | null;
-
-  @ApiProperty({
-    description: 'Difficulty level',
-    example: 3
-  })
-  difficulty: number | null;
 
   @ApiProperty({
     description: 'Whether the habit is currently active',

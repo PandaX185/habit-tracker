@@ -15,8 +15,6 @@ export class CompetitiveService {
       description?: string;
       repetitionInterval: number;
       repetitionUnit: string;
-      points: number;
-      difficulty?: number;
       maxParticipants?: number;
     }
   ) {
@@ -46,7 +44,8 @@ export class CompetitiveService {
                 avatarUrl: true,
               }
             }
-          }
+          },
+          omit: { userId: true }
         }
       }
     });
@@ -145,7 +144,8 @@ export class CompetitiveService {
             description: true,
           }
         }
-      }
+      },
+      omit: { habitId: true, userId: true }
     });
   }
 
@@ -402,7 +402,7 @@ export class CompetitiveService {
                 avatarUrl: true,
               }
             }
-          }
+          },
         },
         user: { // Owner
           select: {
