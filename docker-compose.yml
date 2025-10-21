@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: "postgres:alpine"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=habit_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=password
+    command: ["redis-server", "--requirepass", "password"]
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+  pg-data:
