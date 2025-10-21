@@ -62,12 +62,10 @@ model Habit {
   description        String?
   repetitionInterval Int                @default(1)
   repetitionUnit     String
-  points             Int
   userId             String // Owner of the habit
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   isCompetitive      Boolean            @default(false) // Whether this is a competitive habit
   maxParticipants    Int? // Maximum number of participants (null = unlimited)
-  difficulty         Int?
   isActive           Boolean            @default(true)
   // Streak tracking (only meaningful for personal habits)
   streak             Int                @default(0)

@@ -15,8 +15,6 @@ export class CompetitiveService {
       description?: string;
       repetitionInterval: number;
       repetitionUnit: string;
-      points: number;
-      difficulty?: number;
       maxParticipants?: number;
     }
   ) {
@@ -46,7 +44,8 @@ export class CompetitiveService {
                 avatarUrl: true,
               }
             }
-          }
+          },
+          omit: { userId: true }
         }
       }
     });
@@ -145,7 +144,8 @@ export class CompetitiveService {
             description: true,
           }
         }
-      }
+      },
+      omit: { habitId: true, userId: true }
     });
   }
 
@@ -175,7 +175,6 @@ export class CompetitiveService {
             id: true,
             title: true,
             description: true,
-            points: true,
             repetitionInterval: true,
             repetitionUnit: true,
           }
@@ -365,8 +364,8 @@ export class CompetitiveService {
       throw new BadRequestException('User not found');
     }
 
-    const newXpPoints = user.xpPoints + habit.points;
-    const newLevel = Math.floor(newXpPoints / 100) + 1;
+    const newXpPoints = user.xpPoints + 1;
+    const newLevel = Math.floor(newXpPoints / 10) + 1;
 
     await this.prisma.user.update({
       where: { id: userId },
@@ -403,7 +402,7 @@ export class CompetitiveService {
                 avatarUrl: true,
               }
             }
-          }
+          },
         },
         user: { // Owner
           select: {

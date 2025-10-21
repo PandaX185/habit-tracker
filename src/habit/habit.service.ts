@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, MethodNotAllowedException, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Prisma } from '@prisma/client';
@@ -39,7 +39,6 @@ export class HabitService {
         description: true,
         repetitionInterval: true,
         repetitionUnit: true,
-        points: true,
         userId: true,
         isActive: true,
         streak: true,
@@ -60,7 +59,6 @@ export class HabitService {
         description: true,
         repetitionInterval: true,
         repetitionUnit: true,
-        points: true,
         userId: true,
         isActive: true,
         streak: true,
@@ -98,11 +96,11 @@ export class HabitService {
     });
 
     if (!habit) {
-      throw new Error('Habit not found');
+      throw new NotFoundException('Habit not found');
     }
 
     if (!habit.isActive) {
-      return { message: 'Habit is not active. Wait until the next deadline to complete it again.' };
+      throw new MethodNotAllowedException('Habit is not active');
     }
 
     // Check if already completed today
@@ -171,8 +169,8 @@ export class HabitService {
 
     // Update user XP and level (outside transaction for reliability)
     try {
-      const leveledUp = await this.updateUserProgress(userId, habit.points);
-
+      const leveledUp = await this.updateUserProgress(userId, 1); // All habits now give 1 XP point
+      
       // Check for badges after habit completion and potential level up
       await this.badgeService.checkAndAwardBadges(userId, 'habit_completion');
       if (leveledUp) {
@@ -300,11 +298,7 @@ export class HabitService {
         avgCompletionsPerDay: number | null;
       }>
     >`
-      SELECT
-        COUNT(*) as "totalCompletions",
-        COUNT(DISTINCT DATE("completedAt")) as "activeDays",
-        AVG("completions_per_day") as "avgCompletionsPerDay"
-      FROM (
+      WITH daily_stats AS (
         SELECT
           DATE("completedAt") as "completion_date",
           COUNT(*) as "completions_per_day"
@@ -313,7 +307,12 @@ export class HabitService {
         WHERE h."userId" = ${userId}
         AND hc."completedAt" >= ${startDate}
         GROUP BY DATE("completedAt")
-      ) daily_stats
+      )
+      SELECT
+        (SELECT COUNT(*) FROM "HabitCompletion" hc JOIN "Habit" h ON hc."habitId" = h."id" WHERE h."userId" = ${userId} AND hc."completedAt" >= ${startDate}) as "totalCompletions",
+        COUNT(DISTINCT "completion_date") as "activeDays",
+        AVG("completions_per_day") as "avgCompletionsPerDay"
+      FROM daily_stats
     `;
 
     // Return the first result or default values
@@ -376,7 +375,6 @@ export class HabitService {
           select: {
             id: true,
             title: true,
-            points: true,
           },
         },
       },
@@ -396,10 +394,9 @@ export class HabitService {
       acc[date].completions.push({
         habitId: completion.habit.id,
         habitTitle: completion.habit.title,
-        points: completion.habit.points,
         completedAt: completion.completedAt,
       });
-      acc[date].totalPoints += completion.habit.points;
+      acc[date].totalPoints += 1; // All habits now give 1 point
       return acc;
     }, {} as Record<string, { date: string; completions: any[]; totalPoints: number }>);
 
@@ -417,7 +414,7 @@ export class HabitService {
 
     const oldLevel = user.level;
     const newXpPoints = user.xpPoints + points;
-    const newLevel = Math.floor(newXpPoints / 100) + 1;
+    const newLevel = Math.floor(newXpPoints / 10) + 1;
 
     await this.prisma.user.update({
       where: { id: userId },

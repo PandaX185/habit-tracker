@@ -83,9 +83,8 @@ export class RegisterRequest {
     minNumbers: 1,
     minLowercase: 1,
     minUppercase: 1,
-    minSymbols: 1,
   }, {
-    message: 'Password must be at least 8 characters long and contain at least one number, one lowercase letter, one uppercase letter, and one special character'
+    message: 'Password must be at least 8 characters long and contain at least one number, one lowercase letter, and one uppercase letter'
   })
   password: string;
 

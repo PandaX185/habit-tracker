@@ -43,29 +43,6 @@ export class CreateHabitDto {
   @IsNotEmpty()
   @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
   repetitionUnit: string;
-
-  @ApiProperty({
-    description: 'Points awarded for completing this habit',
-    example: 10,
-    minimum: 1,
-    maximum: 1000,
-  })
-  @IsInt()
-  @Min(1, { message: 'Points must be at least 1' })
-  @Max(1000, { message: 'Points must not exceed 1000' })
-  points: number;
-
-  @ApiPropertyOptional({
-    description: 'Difficulty level (1-5)',
-    example: 2,
-    minimum: 1,
-    maximum: 5,
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(1, { message: 'Difficulty must be at least 1' })
-  @Max(5, { message: 'Difficulty must not exceed 5' })
-  difficulty?: number;
 }
 
 export class UpdateHabitDto {
@@ -109,28 +86,6 @@ export class UpdateHabitDto {
   @IsString()
   @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
   repetitionUnit?: string;
-
-  @ApiPropertyOptional({
-    description: 'Points awarded for completing this habit',
-    minimum: 1,
-    maximum: 1000,
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(1, { message: 'Points must be at least 1' })
-  @Max(1000, { message: 'Points must not exceed 1000' })
-  points?: number;
-
-  @ApiPropertyOptional({
-    description: 'Difficulty level (1-5)',
-    minimum: 1,
-    maximum: 5,
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(1, { message: 'Difficulty must be at least 1' })
-  @Max(5, { message: 'Difficulty must not exceed 5' })
-  difficulty?: number;
 }
 
 export class HabitResponse {
@@ -164,21 +119,10 @@ export class HabitResponse {
   repetitionUnit: string;
 
   @ApiProperty({
-    description: 'Points for completion',
-    example: 10,
-  })
-  points: number;
-
-  @ApiProperty({
     description: 'User ID',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   userId: string;
-
-  @ApiPropertyOptional({
-    description: 'Difficulty level',
-  })
-  difficulty?: number;
 
   @ApiProperty({
     description: 'Whether the habit is currently active',
@@ -332,7 +276,6 @@ export class CalendarDayResponse {
   completions: Array<{
     habitId: string;
     habitTitle: string;
-    points: number;
     completedAt: Date;
   }>;
 
