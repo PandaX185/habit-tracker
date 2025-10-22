@@ -82,7 +82,7 @@ model Habit {
   updatedAt       DateTime           @updatedAt
   participants    HabitParticipant[]
   completions     HabitCompletion[]
-  HabitCategory   HabitCategory[]
+  categories      HabitCategory[]
 
   // Constraints for data integrity
   @@index([userId]) // Foreign key index

@@ -22,7 +22,7 @@ import {
   UserTotalStreaksResponse,
   CompletionStatsResponse,
   CalendarDayResponse,
-} from './habit.dto';
+} from './dto/habit.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -48,7 +48,7 @@ interface RequestWithUser extends Request {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class HabitController {
-  constructor(private readonly habitService: HabitService) {}
+  constructor(private readonly habitService: HabitService) { }
 
   @Post()
   @ApiOperation({

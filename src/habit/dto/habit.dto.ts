@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsInt, IsOptional, IsDateString, IsUUID, Min, Max, Length, IsIn, IsEnum } from 'class-validator';
-import { WEEK_DAYS, extractRepetitionDays, isHabitActive } from './habit.utils';
+import { IsString, IsNotEmpty, IsInt, IsOptional, IsDateString, IsUUID, Min, Max, Length } from 'class-validator';
+import { extractRepetitionDays, isHabitActive } from '../habit.utils';
+import { CategoryDto } from './category.dto';
 
 export class CreateHabitDto {
   @ApiProperty({
@@ -34,6 +35,16 @@ export class CreateHabitDto {
   @Min(1, { message: 'Repetition days must be at least 1' })
   @Max(127, { message: 'Repetition days must not exceed 127' })
   repetitionDays: number;
+
+  @ApiPropertyOptional({
+    description: 'Categories associated with the habit (array of category IDs)',
+    example: ['123e4567-e89b-12d3-a456-426614174000', '123e4567-e89b-12d3-a456-426614174001'],
+  })
+  @IsOptional()
+  @IsUUID('4', {
+    each: true, message: 'Each category ID must be a valid UUID'
+  })
+  categories: string[];
 }
 
 export class UpdateHabitDto {
@@ -68,6 +79,16 @@ export class UpdateHabitDto {
   @Min(1, { message: 'Repetition days must be at least 1' })
   @Max(127, { message: 'Repetition days must not exceed 127' })
   repetitionDays: number;
+
+  @ApiPropertyOptional({
+    description: 'Categories associated with the habit (array of category IDs)',
+    example: ['123e4567-e89b-12d3-a456-426614174000', '123e4567-e89b-12d3-a456-426614174001'],
+  })
+  @IsOptional()
+  @IsUUID('4', {
+    each: true, message: 'Each category ID must be a valid UUID'
+  })
+  categories: string[];
 }
 
 export class HabitResponse {
@@ -123,6 +144,13 @@ export class HabitResponse {
     format: 'date-time',
   })
   lastCompletedAt?: Date;
+
+  @ApiProperty({
+    description: 'Categories associated with the habit (array of category IDs)',
+    example: ['123e4567-e89b-12d3-a456-426614174000', '123e4567-e89b-12d3-a456-426614174001'],
+    type: [CategoryDto],
+  })
+  categories: CategoryDto[];
 
   @ApiProperty({
     description: 'Creation date',

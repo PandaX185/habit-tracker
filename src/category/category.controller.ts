@@ -42,18 +42,4 @@ export class CategoryController {
     );
     return { message: 'Categories seeded successfully' }
   }
-
-  @ApiOperation({
-    summary: 'Get habit categories',
-    description: 'Get all categories for a specific habit'
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Categories fetched successfully',
-    type: [CategoryResponse]
-  })
-  @Get(':habitId')
-  findAllHabitCategories(@Param('habitId') id: string) {
-    return this.categoryService.findAllHabitCategories(id);
-  }
 }

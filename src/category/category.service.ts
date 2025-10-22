@@ -10,13 +10,6 @@ export class CategoryService {
     return this.prisma.category.findMany();
   }
 
-  findAllHabitCategories(id: string) {
-    return this.prisma.habitCategory.findMany({
-      where: { habitId: id },
-      include: { category: true },
-    });
-  }
-
   async seedCategories() {
     for (const category of DEFAULT_CATEGORIES) {
       await this.prisma.category.upsert({

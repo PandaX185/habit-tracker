@@ -1,8 +1,8 @@
-import { Injectable, Logger, MethodNotAllowedException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, MethodNotAllowedException, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { BadgeService } from '../badges/badge.service';
-import { CreateHabitDto, HabitResponse, UpdateHabitDto } from './habit.dto';
+import { CreateHabitDto, HabitResponse, UpdateHabitDto } from './dto/habit.dto';
 import { WEEK_DAYS, extractRepetitionDays, isHabitActive } from './habit.utils';
 
 @Injectable()
@@ -15,16 +15,40 @@ export class HabitService {
   ) { }
 
   async create(createHabitDto: CreateHabitDto, userId: string) {
+    // Exclude categories from direct habit creation because Prisma expects a nested create/connect structure.
+    const { categories, ...habitData } = createHabitDto;
     const habit = await this.prisma.habit.create({
-      data: { ...createHabitDto, user: { connect: { id: userId } }, isCompetitive: false },
+      data: { ...habitData, user: { connect: { id: userId } }, isCompetitive: false },
     });
+
+    try {
+      await this.prisma.habitCategory.createMany({
+        data: (categories || []).map(category => ({
+          habitId: habit.id,
+          categoryId: category,
+        })),
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to associate categories with habit: ' + error.message);
+    }
+
+    const result = await this.prisma.habit.findUnique({
+      where: { id: habit.id },
+      include: {
+        categories: {
+          include: { category: true },
+          omit: { habitId: true, categoryId: true },
+        },
+      },
+    });
+
     // Check for habit count badges after creating a habit
     try {
       await this.badgeService.checkAndAwardBadges(userId, 'habit_created');
     } catch (error) {
       this.logger.error(`Failed to check badges for habit creation ${userId}:`, error);
     }
-    return HabitResponse.fromHabitEntity(habit);
+    return HabitResponse.fromHabitEntity(result);
   }
 
   async findAll(userId: string) {
@@ -39,6 +63,10 @@ export class HabitService {
         streak: true,
         longestStreak: true,
         lastCompletedAt: true,
+        categories: {
+          include: { category: true },
+          omit: { habitId: true, categoryId: true },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -58,6 +86,10 @@ export class HabitService {
         streak: true,
         longestStreak: true,
         lastCompletedAt: true,
+        categories: {
+          include: { category: true },
+          omit: { habitId: true, categoryId: true },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -71,10 +103,29 @@ export class HabitService {
   }
 
   async update(id: string, updateHabitDto: UpdateHabitDto, userId: string) {
+    const { categories, ...habitData } = updateHabitDto;
+    await this.prisma.habitCategory.deleteMany({
+      where: { habitId: id },
+    });
+
+    await this.prisma.habitCategory.createMany({
+      data: (categories || []).map(category => ({
+        habitId: id,
+        categoryId: category,
+      })),
+    });
+
     const habit = await this.prisma.habit.update({
       where: { id, userId },
-      data: updateHabitDto,
+      data: habitData,
+      include: {
+        categories: {
+          include: { category: true },
+          omit: { habitId: true, categoryId: true },
+        },
+      },
     });
+
     return HabitResponse.fromHabitEntity(habit);
   }
 
