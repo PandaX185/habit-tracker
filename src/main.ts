@@ -16,6 +16,7 @@ async function bootstrap() {
     .addTag('friendship', 'Social connections and friendships')
     .addTag('stats', 'Leaderboards and user statistics')
     .addTag('competitive', 'Competitive habits and challenges')
+    .addTag('category', 'Habit categories')
     .addBearerAuth(
       {
         type: 'http',

@@ -82,6 +82,7 @@ model Habit {
   updatedAt       DateTime           @updatedAt
   participants    HabitParticipant[]
   completions     HabitCompletion[]
+  HabitCategory   HabitCategory[]
 
   // Constraints for data integrity
   @@index([userId]) // Foreign key index
@@ -189,4 +190,27 @@ model UserBadge {
   @@index([userId])
   @@index([badgeId])
   @@index([earnedAt])
+}
+
+model Category {
+  id            String          @id @default(uuid())
+  name          String          @unique
+  icon          String? // Icon URL or emoji
+  createdAt     DateTime        @default(now())
+  HabitCategory HabitCategory[]
+
+  @@index([name])
+}
+
+model HabitCategory {
+  id         String   @id @default(uuid())
+  habitId    String
+  categoryId String
+  habit      Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Unique constraint prevents duplicate category assignments
+  @@unique([habitId, categoryId])
+  @@index([habitId])
+  @@index([categoryId])
 }

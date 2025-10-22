@@ -9,6 +9,7 @@ import { FriendshipModule } from './friendship/friendship.module';
 import { StatsModule } from './stats/stats.module';
 import { CompetitiveModule } from './competitive/competitive.module';
 import { BadgeModule } from './badges/badge.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BadgeModule } from './badges/badge.module';
     StatsModule,
     CompetitiveModule,
     BadgeModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
