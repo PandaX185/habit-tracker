@@ -10,12 +10,8 @@ describe('HabitController', () => {
     id: 'habit-id',
     title: 'Test Habit',
     description: 'Test Description',
-    repetitionInterval: 1,
-    repetitionUnit: 'days',
-    points: 10,
+    repetitionDays: 127,
     userId: 'user-id',
-    category: 'Health',
-    difficulty: 2,
     isActive: true,
     streak: 0,
     lastCompletedAt: null,
@@ -54,9 +50,7 @@ describe('HabitController', () => {
     it('should create a habit', async () => {
       const createHabitDto = {
         title: 'New Habit',
-        repetitionInterval: 1,
-        repetitionUnit: 'days',
-        points: 10,
+        repetitionDays: 127,
       };
       const userId = 'user-id';
       const mockReq = { user: { userId } };
@@ -105,7 +99,7 @@ describe('HabitController', () => {
     it('should update a habit', async () => {
       const id = 'habit-id';
       const userId = 'user-id';
-      const updateHabitDto = { title: 'Updated' };
+      const updateHabitDto = { title: 'Updated', repetitionDays: 127 };
       const mockReq = { user: { userId } };
 
       service.update.mockResolvedValue(mockHabit);

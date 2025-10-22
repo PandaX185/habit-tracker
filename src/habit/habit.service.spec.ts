@@ -13,14 +13,6 @@ describe('HabitService', () => {
   let mockBadgeService: jest.Mocked<BadgeService>;
 
   beforeEach(async () => {
-    const mockQueueProvider = {
-      provide: getQueueToken('habit-reactivation'),
-      useValue: {
-        add: jest.fn(),
-        getJob: jest.fn(),
-      },
-    };
-
     const mockBadgeServiceProvider = {
       provide: BadgeService,
       useValue: {
@@ -29,12 +21,11 @@ describe('HabitService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [HabitService, PrismaService, mockQueueProvider, mockBadgeServiceProvider],
+      providers: [HabitService, PrismaService, mockBadgeServiceProvider],
     }).compile();
 
     service = module.get<HabitService>(HabitService);
     prismaService = module.get<PrismaService>(PrismaService);
-    mockQueue = module.get(getQueueToken('habit-reactivation'));
     mockBadgeService = module.get(BadgeService);
   });
 
@@ -57,9 +48,7 @@ describe('HabitService', () => {
 
       const createHabitDto = {
         title: 'New Habit',
-        repetitionInterval: 2,
-        repetitionUnit: 'weeks',
-        points: 20,
+        repetitionDays: 127, // All days
       };
 
       const result = await service.create(createHabitDto, user.id);
@@ -91,9 +80,7 @@ describe('HabitService', () => {
       const habit = await prismaService.habit.create({
         data: {
           title: 'Test Habit',
-          repetitionInterval: 1,
-          repetitionUnit: 'days',
-          points: 10,
+          repetitionDays: 127, // All days
           user: { connect: { id: user.id } },
         },
       });
@@ -146,9 +133,7 @@ describe('HabitService', () => {
       const habit = await prismaService.habit.create({
         data: {
           title: 'Test Habit',
-          repetitionInterval: 1,
-          repetitionUnit: 'days',
-          points: 10,
+          repetitionDays: 127, // All days
           user: { connect: { id: user.id } },
         },
       });
@@ -175,9 +160,9 @@ describe('HabitService', () => {
         },
       });
 
-      const result = await service.findOne('non-existent-id', user.id);
-
-      expect(result).toBeNull();
+      await expect(
+        service.findOne('non-existent-id', user.id),
+      ).rejects.toThrow('Habit not found');
 
       // Clean up
       await prismaService.user.delete({ where: { id: user.id } });
@@ -201,22 +186,19 @@ describe('HabitService', () => {
       const habit = await prismaService.habit.create({
         data: {
           title: 'Test Habit',
-          repetitionInterval: 1,
-          repetitionUnit: 'days',
-          points: 10,
+          repetitionDays: 127, // All days
           user: { connect: { id: user.id } },
         },
       });
 
       const updateHabitDto = {
         title: 'Updated Habit',
-        points: 15,
+        repetitionDays: 127,
       };
 
       const result = await service.update(habit.id, updateHabitDto, user.id);
 
       expect(result.title).toBe('Updated Habit');
-      expect(result.points).toBe(15);
 
       // Clean up
       await prismaService.habit.delete({ where: { id: habit.id } });
@@ -235,7 +217,7 @@ describe('HabitService', () => {
         },
       });
 
-      const updateHabitDto = { title: 'Updated' };
+      const updateHabitDto = { title: 'Updated', repetitionDays: 127 };
 
       await expect(
         service.update('non-existent-id', updateHabitDto, user.id),
@@ -263,9 +245,7 @@ describe('HabitService', () => {
       const habit = await prismaService.habit.create({
         data: {
           title: 'Test Habit',
-          repetitionInterval: 1,
-          repetitionUnit: 'days',
-          points: 10,
+          repetitionDays: 127, // All days
           user: { connect: { id: user.id } },
         },
       });
@@ -325,17 +305,11 @@ describe('HabitService', () => {
       const habit = await prismaService.habit.create({
         data: {
           title: 'Daily Exercise',
-          repetitionInterval: 1,
-          repetitionUnit: 'days',
-          points: 10,
+          repetitionDays: 127, // All days
           user: { connect: { id: user.id } },
-          isActive: true,
           streak: 0,
         },
       });
-
-      mockQueue.add.mockResolvedValue({} as any);
-      mockQueue.getJob.mockResolvedValue(undefined);
 
       const result = await service.completeHabit(habit.id, user.id);
 
@@ -347,19 +321,7 @@ describe('HabitService', () => {
       const updatedUser = await prismaService.user.findUnique({
         where: { id: user.id },
       });
-      expect(updatedUser!.xpPoints).toBe(10);
-
-      // Check that job was scheduled
-      expect(mockQueue.add).toHaveBeenCalledWith(
-        'reactivate-habit',
-        { habitId: habit.id },
-        expect.objectContaining({
-          delay: expect.any(Number),
-          jobId: `reactivate-${habit.id}`,
-          removeOnComplete: true,
-          removeOnFail: true,
-        }),
-      );
+      expect(updatedUser!.xpPoints).toBe(1);
 
       // Clean up
       await prismaService.habit.delete({ where: { id: habit.id } });
@@ -402,11 +364,9 @@ describe('HabitService', () => {
       const habit = await prismaService.habit.create({
         data: {
           title: 'Inactive Habit',
-          repetitionInterval: 1,
-          repetitionUnit: 'days',
-          points: 10,
+          repetitionDays: 127, // All days
           user: { connect: { id: user.id } },
-          isActive: false,
+          lastCompletedAt: new Date(), // Completed today, so inactive
         },
       });
 
