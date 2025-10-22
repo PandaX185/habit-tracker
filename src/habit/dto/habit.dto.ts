@@ -44,7 +44,7 @@ export class CreateHabitDto {
   @IsUUID('4', {
     each: true, message: 'Each category ID must be a valid UUID'
   })
-  categories: string[];
+  categories?: string[];
 }
 
 export class UpdateHabitDto {
@@ -88,7 +88,7 @@ export class UpdateHabitDto {
   @IsUUID('4', {
     each: true, message: 'Each category ID must be a valid UUID'
   })
-  categories: string[];
+  categories?: string[];
 }
 
 export class HabitResponse {
