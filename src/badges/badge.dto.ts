@@ -1,5 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsObject, IsNumber, Min, Max } from 'class-validator';
-import { BadgeType, BadgeRarity } from '@prisma/client';
+import { IsOptional, IsString, IsObject, IsNumber, Min } from 'class-validator';
 
 export class BadgeProgressDto {
   @IsString({ message: 'Badge ID must be a string' })

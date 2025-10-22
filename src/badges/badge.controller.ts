@@ -19,7 +19,7 @@ interface RequestWithUser extends Request {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class BadgeController {
-  constructor(private readonly badgeService: BadgeService) {}
+  constructor(private readonly badgeService: BadgeService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get all available badges' })
@@ -33,13 +33,6 @@ export class BadgeController {
   @ApiResponse({ status: 200, description: 'List of user\'s earned badges' })
   async getMyBadges(@Req() req: RequestWithUser) {
     return this.badgeService.getUserBadges(req.user.userId);
-  }
-
-  @Get('progress')
-  @ApiOperation({ summary: 'Get current user\'s badge progress' })
-  @ApiResponse({ status: 200, description: 'List of badge progress for unearned badges' })
-  async getBadgeProgress(@Req() req: RequestWithUser): Promise<BadgeProgressDto[]> {
-    return this.badgeService.getBadgeProgress(req.user.userId);
   }
 
   @Post('check-badges')
