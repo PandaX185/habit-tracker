@@ -24,17 +24,6 @@ export class CreateCompetitiveHabitDto {
   @Length(0, 500, { message: 'Description must not exceed 500 characters' })
   description?: string;
 
-  @ApiProperty({
-    description: 'At which days the habit should be repeated (in bitmask format)',
-    example: 32,
-    minimum: 1,
-    maximum: 127,
-  })
-  @IsInt()
-  @Min(1, { message: 'Repetition days must be at least 1' })
-  @Max(127, { message: 'Repetition days must not exceed 127' })
-  repetitionDays: number;
-
   @ApiPropertyOptional({
     description: 'Maximum number of participants (null = unlimited)',
     example: 10,
@@ -79,18 +68,6 @@ export class CompetitiveHabitDto {
   description: string | null;
 
   @ApiProperty({
-    description: 'Repetition interval',
-    example: 1
-  })
-  repetitionInterval: number;
-
-  @ApiProperty({
-    description: 'Repetition unit',
-    example: 'days'
-  })
-  repetitionUnit: string;
-
-  @ApiProperty({
     description: 'ID of the habit owner',
     example: '123e4567-e89b-12d3-a456-426614174000'
   })
@@ -107,12 +84,6 @@ export class CompetitiveHabitDto {
     example: 10
   })
   maxParticipants: number | null;
-
-  @ApiProperty({
-    description: 'Whether the habit is currently active',
-    example: true
-  })
-  isActive: boolean;
 
   @ApiProperty({
     description: 'When the habit was created',

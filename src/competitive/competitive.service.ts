@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BadgeService } from '../badges/badge.service';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CompetitiveService {
@@ -13,13 +12,13 @@ export class CompetitiveService {
     habitData: {
       title: string;
       description?: string;
-      repetitionDays: number;
       maxParticipants?: number;
     }
   ) {
     const habit = await this.prisma.habit.create({
       data: {
         ...habitData,
+        repetitionDays: 127, // Always all days for competitive habits
         userId: ownerId,
         isCompetitive: true,
         maxParticipants: habitData.maxParticipants,
@@ -174,7 +173,6 @@ export class CompetitiveService {
             id: true,
             title: true,
             description: true,
-            repetitionDays: true,
           }
         }
       }
