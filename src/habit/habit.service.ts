@@ -1,6 +1,4 @@
 import { Injectable, Logger, MethodNotAllowedException, NotFoundException } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { BadgeService } from '../badges/badge.service';
@@ -14,7 +12,6 @@ export class HabitService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly badgeService: BadgeService,
-    @InjectQueue('habit-reactivation') private readonly habitQueue: Queue,
   ) { }
 
   async create(createHabitDto: CreateHabitDto, userId: string) {
@@ -82,9 +79,6 @@ export class HabitService {
   }
 
   async remove(id: string, userId: string) {
-    // Cancel any pending reactivation jobs for this habit
-    await this.cancelHabitReactivationJob(id);
-
     return this.prisma.habit.delete({
       where: { id, userId },
     });
@@ -149,9 +143,6 @@ export class HabitService {
       const newStreak = await this.calculateStreakIncrementally(prisma, habit, now);
       const newLongestStreak = Math.max(habit.longestStreak, newStreak);
 
-      // Cancel any existing reactivation job for this habit
-      await this.cancelHabitReactivationJob(id);
-
       // Update habit
       const updatedHabit = await prisma.habit.update({
         where: { id, userId },
@@ -179,41 +170,7 @@ export class HabitService {
       // Don't fail the habit completion if user progress update fails
     }
 
-    // Schedule reactivation job outside transaction
-    try {
-      const delay = nextDeadline.getTime() - now.getTime();
-      await this.habitQueue.add(
-        'reactivate-habit',
-        { habitId: id },
-        {
-          delay,
-          jobId: `reactivate-${id}`, // Unique job ID for cancellation
-          removeOnComplete: true,
-          removeOnFail: true,
-        },
-      );
-
-      this.logger.log(`Scheduled reactivation for habit ${id} in ${delay}ms`);
-    } catch (error) {
-      this.logger.error(`Failed to schedule reactivation job for habit ${id}:`, error);
-    }
-
     return updatedHabit;
-  }
-
-  private async cancelHabitReactivationJob(habitId: string) {
-    try {
-      const job = await this.habitQueue.getJob(`reactivate-${habitId}`);
-      if (job) {
-        await job.remove();
-        this.logger.log(`Cancelled reactivation job for habit ${habitId}`);
-      }
-    } catch (error) {
-      this.logger.error(
-        `Failed to cancel reactivation job for habit ${habitId}:`,
-        error,
-      );
-    }
   }
 
   async getHabitStreak(habitId: string, userId: string) {
