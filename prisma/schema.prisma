@@ -56,29 +56,35 @@ model Friendship {
   @@index([status]) // For filtering by status
 }
 
+// RepetitionDays is a bitmask representing days of the week: 
+// 0b0000001 = Saturday
+// 0b0000010 = Sunday
+// 0b0000100 = Monday
+// 0b0001000 = Tuesday
+// 0b0010000 = Wednesday
+// 0b0100000 = Thursday
+// 0b1000000 = Friday
+// Combine bits for multiple days (e.g., 0b1111110 = every day except Saturday)
 model Habit {
-  id                 String             @id @default(uuid())
-  title              String
-  description        String?
-  repetitionInterval Int                @default(1)
-  repetitionUnit     String
-  userId             String // Owner of the habit
-  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  isCompetitive      Boolean            @default(false) // Whether this is a competitive habit
-  maxParticipants    Int? // Maximum number of participants (null = unlimited)
-  isActive           Boolean            @default(true)
+  id              String             @id @default(uuid())
+  title           String
+  description     String?
+  repetitionDays  Int // Bitmask for days of the week
+  userId          String // Owner of the habit
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isCompetitive   Boolean            @default(false) // Whether this is a competitive habit
+  maxParticipants Int? // Maximum number of participants (null = unlimited)
   // Streak tracking (only meaningful for personal habits)
-  streak             Int                @default(0)
-  longestStreak      Int                @default(0)
-  lastCompletedAt    DateTime?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  participants       HabitParticipant[]
-  completions        HabitCompletion[]
+  streak          Int                @default(0)
+  longestStreak   Int                @default(0)
+  lastCompletedAt DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  participants    HabitParticipant[]
+  completions     HabitCompletion[]
 
   // Constraints for data integrity
   @@index([userId]) // Foreign key index
-  @@index([userId, isActive]) // Active habits per user
   @@index([userId, createdAt]) // Recent habits
   @@index([isCompetitive]) // Competitive vs personal habits
 }

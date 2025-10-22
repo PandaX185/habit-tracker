@@ -25,25 +25,15 @@ export class CreateCompetitiveHabitDto {
   description?: string;
 
   @ApiProperty({
-    description: 'How often the habit should be repeated',
-    example: 1,
+    description: 'At which days the habit should be repeated (in bitmask format)',
+    example: 32,
     minimum: 1,
-    maximum: 365,
+    maximum: 127,
   })
   @IsInt()
-  @Min(1, { message: 'Repetition interval must be at least 1' })
-  @Max(365, { message: 'Repetition interval must not exceed 365' })
-  repetitionInterval: number;
-
-  @ApiProperty({
-    description: 'Unit for repetition (days, weeks, months)',
-    example: 'days',
-    enum: ['days', 'weeks', 'months'],
-  })
-  @IsString()
-  @IsNotEmpty({ message: 'Repetition unit is required' })
-  @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
-  repetitionUnit: string;
+  @Min(1, { message: 'Repetition days must be at least 1' })
+  @Max(127, { message: 'Repetition days must not exceed 127' })
+  repetitionDays: number;
 
   @ApiPropertyOptional({
     description: 'Maximum number of participants (null = unlimited)',

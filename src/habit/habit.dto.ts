@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsInt, IsOptional, IsDateString, IsUUID, Min, Max, Length, IsIn, IsEnum } from 'class-validator';
+import { WEEK_DAYS, extractRepetitionDays, isHabitActive } from './habit.utils';
 
 export class CreateHabitDto {
   @ApiProperty({
@@ -24,25 +25,15 @@ export class CreateHabitDto {
   description?: string;
 
   @ApiProperty({
-    description: 'How often the habit should be performed',
-    example: 1,
+    description: 'At which days the habit should be repeated (in bitmask format)',
+    example: 32,
     minimum: 1,
-    maximum: 365,
+    maximum: 127,
   })
   @IsInt()
-  @Min(1, { message: 'Repetition interval must be at least 1' })
-  @Max(365, { message: 'Repetition interval must not exceed 365' })
-  repetitionInterval: number;
-
-  @ApiProperty({
-    description: 'Time unit for repetition (days, weeks, months)',
-    example: 'days',
-    enum: ['days', 'weeks', 'months'],
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
-  repetitionUnit: string;
+  @Min(1, { message: 'Repetition days must be at least 1' })
+  @Max(127, { message: 'Repetition days must not exceed 127' })
+  repetitionDays: number;
 }
 
 export class UpdateHabitDto {
@@ -67,25 +58,16 @@ export class UpdateHabitDto {
   @Length(0, 500, { message: 'Description must not exceed 500 characters' })
   description?: string;
 
-  @ApiPropertyOptional({
-    description: 'How often the habit should be performed',
+  @ApiProperty({
+    description: 'At which days the habit should be repeated (in bitmask format)',
+    example: 32,
     minimum: 1,
-    maximum: 365,
+    maximum: 127,
   })
-  @IsOptional()
   @IsInt()
-  @Min(1, { message: 'Repetition interval must be at least 1' })
-  @Max(365, { message: 'Repetition interval must not exceed 365' })
-  repetitionInterval?: number;
-
-  @ApiPropertyOptional({
-    description: 'Time unit for repetition',
-    enum: ['days', 'weeks', 'months'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsIn(['days', 'weeks', 'months'], { message: 'Repetition unit must be one of: days, weeks, months' })
-  repetitionUnit?: string;
+  @Min(1, { message: 'Repetition days must be at least 1' })
+  @Max(127, { message: 'Repetition days must not exceed 127' })
+  repetitionDays: number;
 }
 
 export class HabitResponse {
@@ -107,16 +89,10 @@ export class HabitResponse {
   description?: string;
 
   @ApiProperty({
-    description: 'Repetition interval',
-    example: 1,
+    description: 'Repetition days list',
+    example: ['Monday', 'Wednesday', 'Friday'],
   })
-  repetitionInterval: number;
-
-  @ApiProperty({
-    description: 'Repetition unit',
-    example: 'days',
-  })
-  repetitionUnit: string;
+  repetitionDays: string[];
 
   @ApiProperty({
     description: 'User ID',
@@ -159,6 +135,14 @@ export class HabitResponse {
     format: 'date-time',
   })
   updatedAt: Date;
+
+  static fromHabitEntity(habit: any): HabitResponse {
+    const instance = new HabitResponse();
+    Object.assign(instance, habit);
+    instance.repetitionDays = extractRepetitionDays(habit.repetitionDays);
+    instance.isActive = isHabitActive(habit.repetitionDays, habit.lastCompletedAt);
+    return instance;
+  }
 }
 
 export class CompleteHabitDto {

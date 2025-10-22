@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { isHabitActive } from '../habit/habit.utils';
 
 @Injectable()
 export class StatsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   // Get leaderboard for user's friends including themselves
   async getFriendsLeaderboard(userId: string) {
@@ -135,7 +136,8 @@ export class StatsService {
         id: true,
         streak: true,
         longestStreak: true,
-        isActive: true,
+        repetitionDays: true,
+        lastCompletedAt: true,
         _count: {
           select: { completions: true }
         }
@@ -143,7 +145,7 @@ export class StatsService {
     });
 
     const totalHabits = habits.length;
-    const activeHabits = habits.filter(h => h.isActive).length;
+    const activeHabits = habits.filter(h => isHabitActive(h.repetitionDays, h.lastCompletedAt)).length;
     const totalCompletions = habits.reduce((sum, h) => sum + h._count.completions, 0);
     const currentTotalStreak = habits.reduce((sum, h) => sum + h.streak, 0);
     const longestTotalStreak = habits.reduce((sum, h) => sum + h.longestStreak, 0);

@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CompetitiveService {
-  constructor(private readonly prisma: PrismaService, private readonly badgeService: BadgeService) {}
+  constructor(private readonly prisma: PrismaService, private readonly badgeService: BadgeService) { }
 
   // Create a competitive habit
   async createCompetitiveHabit(
@@ -13,8 +13,7 @@ export class CompetitiveService {
     habitData: {
       title: string;
       description?: string;
-      repetitionInterval: number;
-      repetitionUnit: string;
+      repetitionDays: number;
       maxParticipants?: number;
     }
   ) {
@@ -175,8 +174,7 @@ export class CompetitiveService {
             id: true,
             title: true,
             description: true,
-            repetitionInterval: true,
-            repetitionUnit: true,
+            repetitionDays: true,
           }
         }
       }

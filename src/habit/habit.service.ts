@@ -4,7 +4,8 @@ import { Queue } from 'bullmq';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { BadgeService } from '../badges/badge.service';
-import { CreateHabitDto, UpdateHabitDto } from './habit.dto';
+import { CreateHabitDto, HabitResponse, UpdateHabitDto } from './habit.dto';
+import { WEEK_DAYS, extractRepetitionDays, isHabitActive } from './habit.utils';
 
 @Injectable()
 export class HabitService {
@@ -16,31 +17,28 @@ export class HabitService {
     @InjectQueue('habit-reactivation') private readonly habitQueue: Queue,
   ) { }
 
-  create(createHabitDto: CreateHabitDto, userId: string) {
-    return this.prisma.habit.create({
+  async create(createHabitDto: CreateHabitDto, userId: string) {
+    const habit = await this.prisma.habit.create({
       data: { ...createHabitDto, user: { connect: { id: userId } }, isCompetitive: false },
-    }).then(async (habit) => {
-      // Check for habit count badges after creating a habit
-      try {
-        await this.badgeService.checkAndAwardBadges(userId, 'habit_created');
-      } catch (error) {
-        this.logger.error(`Failed to check badges for habit creation ${userId}:`, error);
-      }
-      return habit;
     });
+    // Check for habit count badges after creating a habit
+    try {
+      await this.badgeService.checkAndAwardBadges(userId, 'habit_created');
+    } catch (error) {
+      this.logger.error(`Failed to check badges for habit creation ${userId}:`, error);
+    }
+    return HabitResponse.fromHabitEntity(habit);
   }
 
-  findAll(userId: string) {
-    return this.prisma.habit.findMany({
+  async findAll(userId: string) {
+    const habits = await this.prisma.habit.findMany({
       where: { userId },
       select: {
         id: true,
         title: true,
         description: true,
-        repetitionInterval: true,
-        repetitionUnit: true,
+        repetitionDays: true,
         userId: true,
-        isActive: true,
         streak: true,
         longestStreak: true,
         lastCompletedAt: true,
@@ -48,19 +46,18 @@ export class HabitService {
         updatedAt: true,
       },
     });
+    return habits.map(habit => HabitResponse.fromHabitEntity(habit));
   }
 
-  findOne(id: string, userId: string) {
-    return this.prisma.habit.findUnique({
+  async findOne(id: string, userId: string) {
+    const habit = await this.prisma.habit.findUnique({
       where: { id, userId },
       select: {
         id: true,
         title: true,
         description: true,
-        repetitionInterval: true,
-        repetitionUnit: true,
+        repetitionDays: true,
         userId: true,
-        isActive: true,
         streak: true,
         longestStreak: true,
         lastCompletedAt: true,
@@ -68,13 +65,20 @@ export class HabitService {
         updatedAt: true,
       },
     });
+
+    if (!habit) {
+      throw new NotFoundException('Habit not found');
+    }
+
+    return HabitResponse.fromHabitEntity(habit);
   }
 
-  update(id: string, updateHabitDto: UpdateHabitDto, userId: string) {
-    return this.prisma.habit.update({
+  async update(id: string, updateHabitDto: UpdateHabitDto, userId: string) {
+    const habit = await this.prisma.habit.update({
       where: { id, userId },
       data: updateHabitDto,
     });
+    return HabitResponse.fromHabitEntity(habit);
   }
 
   async remove(id: string, userId: string) {
@@ -99,7 +103,7 @@ export class HabitService {
       throw new NotFoundException('Habit not found');
     }
 
-    if (!habit.isActive) {
+    if (!isHabitActive(habit.repetitionDays, habit.lastCompletedAt)) {
       throw new MethodNotAllowedException('Habit is not active');
     }
 
@@ -115,23 +119,18 @@ export class HabitService {
     });
 
     if (existingCompletion) {
-      throw new Error('Habit already completed today');
+      throw new MethodNotAllowedException('Habit already completed today');
     }
 
     // Calculate next deadline
     const nextDeadline = new Date(now);
-    switch (habit.repetitionUnit) {
-      case 'days':
-        nextDeadline.setDate(now.getDate() + habit.repetitionInterval);
+    const repetitionDays: string[] = extractRepetitionDays(habit.repetitionDays);
+    const currentDayIndex = now.getDay(); // 0 (Sun) to 6 (Sat)
+    for (let i = currentDayIndex + 1; i < 7; i++) {
+      if (repetitionDays.includes(WEEK_DAYS[i])) {
+        nextDeadline.setDate(now.getDate() + (i - currentDayIndex));
         break;
-      case 'weeks':
-        nextDeadline.setDate(now.getDate() + habit.repetitionInterval * 7);
-        break;
-      case 'months':
-        nextDeadline.setMonth(now.getMonth() + habit.repetitionInterval);
-        break;
-      default:
-        throw new Error('Invalid repetition unit');
+      }
     }
 
     // Use transaction only for database operations
@@ -160,17 +159,16 @@ export class HabitService {
           streak: newStreak,
           longestStreak: newLongestStreak,
           lastCompletedAt: now,
-          isActive: false, // Disable until next deadline
         },
       });
 
-      return updatedHabit;
+      return HabitResponse.fromHabitEntity(updatedHabit);
     });
 
     // Update user XP and level (outside transaction for reliability)
     try {
       const leveledUp = await this.updateUserProgress(userId, 1); // All habits now give 1 XP point
-      
+
       // Check for badges after habit completion and potential level up
       await this.badgeService.checkAndAwardBadges(userId, 'habit_completion');
       if (leveledUp) {
@@ -267,7 +265,7 @@ export class HabitService {
     });
 
     if (!habit) {
-      throw new Error('Habit not found');
+      throw new NotFoundException('Habit not found');
     }
 
     const completions = await this.prisma.habitCompletion.findMany({
@@ -279,7 +277,7 @@ export class HabitService {
         },
       },
       orderBy: { completedAt: 'desc' },
-      take: 100, // Limit results
+      take: 100,
     });
 
     return completions;

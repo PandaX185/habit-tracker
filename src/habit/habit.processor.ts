@@ -13,21 +13,7 @@ export class HabitProcessor extends WorkerHost {
   }
 
   async process(job: Job<{ habitId: string }>): Promise<void> {
-    const { habitId } = job.data;
-
-    try {
-      this.logger.log(`Reactivating habit ${habitId}`);
-
-      await this.prisma.habit.update({
-        where: { id: habitId },
-        data: { isActive: true },
-      });
-
-      this.logger.log(`Successfully reactivated habit ${habitId}`);
-    } catch (error) {
-      this.logger.error(`Failed to reactivate habit ${habitId}:`, error);
-      throw error;
-    }
+    // TODO
   }
 
   @OnWorkerEvent('completed')
