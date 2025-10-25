@@ -28,6 +28,7 @@ async function bootstrap() {
       },
       'JWT-auth',
     )
+    .addServer('https://h-tracker-7703a9cc20bb.herokuapp.com/api', 'Production server')
     .addServer('http://localhost:8000/api', 'Development server')
     .build();
 
